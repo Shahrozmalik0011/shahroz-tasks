@@ -210,8 +210,7 @@ select.inp option { background: #10101e; }
 </div>
 
 <script>
-// ── YOUR APPS SCRIPT URL ──
-var API = 'https://script.google.com/macros/s/AKfycbzcg1OxxxQqGTWKhhHCdrlRg4zMbc-bXE3kdvKBC8mXTPLVSbODZFbkJ22tiZ4iBWav/exec';
+var API = 'https://script.google.com/macros/s/AKfycbx53_Ej_Bn2aS2tOwh9oXj7tMOSve09dZhtZ60qU69wn657rWrvguqgONX8qav7egQK/exec';
 
 var PW = '';
 var sess = ''; var rows = []; var filt = 'all'; var tc = 0;
@@ -230,22 +229,24 @@ function dateLabel(s,done){
   return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
 }
 
-function api(data){
-  return fetch(API, {
-    method:'POST',
-    body: JSON.stringify(data)
-  }).then(function(r){ return r.json(); });
+// All API calls use GET to avoid CORS issues
+function apiGet(params){
+  var url = API + '?';
+  var parts = [];
+  for(var k in params) parts.push(k+'='+encodeURIComponent(params[k]));
+  url += parts.join('&');
+  return fetch(url).then(function(r){ return r.json(); });
 }
 
 function boot(){
   addTask();
-  api({ action:'getConfig' })
+  apiGet({ action:'getConfig' })
     .then(function(config){
       PW = config.password;
       var s = localStorage.getItem('sz_pw');
-      if(s === PW){ sess = s; }
+      if(s === PW && PW !== ''){ sess = s; }
     })
-    .catch(function(){ console.log('Config load failed'); });
+    .catch(function(e){ console.log('Config error:', e); });
 }
 
 function showView(v){
@@ -309,13 +310,21 @@ function submitTasks(){
   var tasks=[];
   for(var i=0;i<cards.length;i++){
     var v=cards[i].querySelector('.tn').value.trim(); if(!v) continue;
-    tasks.push({name:v,category:cards[i].querySelector('.tc').value,priority:cards[i].querySelector('.tp').value,deadline:cards[i].querySelector('.td').value});
+    tasks.push({
+      name:v,
+      category:cards[i].querySelector('.tc').value,
+      priority:cards[i].querySelector('.tp').value,
+      deadline:cards[i].querySelector('.td').value
+    });
   }
   if(!tasks.length){alert('Fill in at least one task.');return;}
   var btn=document.getElementById('send-btn');
   btn.disabled=true; btn.textContent='Sending…';
-  api({ action:'submitTasks', payload:{ senderName:nm, tasks:tasks } })
-    .then(function(){
+
+  var payload = { senderName: nm, tasks: tasks };
+  apiGet({ action:'submitTasks', payload: JSON.stringify(payload) })
+    .then(function(res){
+      if(res.error){ alert('Error: '+res.error); btn.disabled=false; btn.textContent='Send Tasks →'; return; }
       document.getElementById('form-body').style.display='none';
       document.getElementById('success-state').classList.add('show');
       btn.disabled=false; btn.textContent='Send Tasks →';
@@ -336,8 +345,7 @@ function resetForm(){
 
 function loadRows(){
   document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
-  fetch(API+'?action=getTasks&password='+encodeURIComponent(sess))
-    .then(function(r){ return r.json(); })
+  apiGet({ action:'getTasks', password: sess })
     .then(function(res){
       try{
         if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
@@ -346,8 +354,8 @@ function loadRows(){
         rows=res.tasks; renderAll();
       }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
     })
-    .catch(function(e){
-      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Failed to load. Check connection.</p></div>';
+    .catch(function(){
+      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Failed to load. Try refreshing.</p></div>';
     });
 }
 
@@ -428,7 +436,7 @@ function renderRows(){
 
 function toggle(id,e){
   e.stopPropagation();
-  api({ action:'toggleDone', id:id, password:sess })
+  apiGet({ action:'toggleDone', id:id, password:sess })
     .then(function(){ loadRows(); });
 }
 </script>
