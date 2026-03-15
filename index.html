@@ -7,25 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #080810;
-  --bg2: #0d0d18;
-  --card: #10101e;
-  --card2: #161628;
-  --border: #1e1e35;
-  --border2: #262640;
-  --accent: #7c6dfa;
-  --accent-glow: rgba(124,109,250,0.18);
-  --red: #f0506e;
-  --red-bg: rgba(240,80,110,0.1);
-  --green: #36d399;
-  --green-bg: rgba(54,211,153,0.1);
-  --yellow: #fbbd23;
-  --yellow-bg: rgba(251,189,35,0.1);
-  --text: #e2e2f0;
-  --text2: #9090b0;
-  --text3: #50506a;
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Outfit', sans-serif;
+  --bg: #080810; --bg2: #0d0d18; --card: #10101e; --card2: #161628;
+  --border: #1e1e35; --border2: #262640; --accent: #7c6dfa;
+  --accent-glow: rgba(124,109,250,0.18); --red: #f0506e;
+  --red-bg: rgba(240,80,110,0.1); --green: #36d399;
+  --green-bg: rgba(54,211,153,0.1); --yellow: #fbbd23;
+  --yellow-bg: rgba(251,189,35,0.1); --text: #e2e2f0;
+  --text2: #9090b0; --text3: #50506a;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Outfit', sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 14px; }
@@ -35,13 +24,7 @@ body::before {
   background-image: linear-gradient(rgba(124,109,250,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124,109,250,0.03) 1px, transparent 1px);
   background-size: 40px 40px; pointer-events: none; z-index: 0;
 }
-.nav {
-  position: sticky; top: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; height: 52px;
-  background: rgba(8,8,16,0.92); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
+.nav { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; background: rgba(8,8,16,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
 .logo { font-family: var(--sans); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text2); }
 .logo b { color: var(--text); font-weight: 700; }
 .logo .dot { color: var(--accent); }
@@ -50,14 +33,11 @@ body::before {
 .nav-tab.active { background: var(--accent); color: #fff; }
 .view { display: none; position: relative; z-index: 1; }
 .view.active { display: block; }
-
-/* SUBMIT */
 .submit-page { max-width: 480px; margin: 0 auto; padding: 44px 20px 80px; }
-.page-eyebrow { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+.page-eyebrow { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
 .page-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; letter-spacing: -0.3px; }
 .page-title em { color: var(--accent); font-style: normal; }
 .page-sub { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 28px; }
-.field-wrap { margin-bottom: 16px; }
 .field-label { display: block; font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
 .inp { width: 100%; background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 13px; color: var(--text); font-family: var(--sans); font-size: 13px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; appearance: none; }
 .inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
@@ -75,7 +55,7 @@ select.inp option { background: #10101e; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .add-row { width: 100%; padding: 10px; background: transparent; border: 1px dashed var(--border2); border-radius: 8px; color: var(--text3); font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
 .add-row:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
-.send-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em; }
+.send-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
 .send-btn:hover { filter: brightness(1.1); box-shadow: 0 4px 20px rgba(124,109,250,0.3); }
 .send-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; box-shadow: none; }
 .success-state { display: none; text-align: center; padding: 70px 20px; }
@@ -85,8 +65,6 @@ select.inp option { background: #10101e; }
 .success-state p { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
 .reset-btn { margin-top: 20px; padding: 9px 22px; display: inline-block; background: var(--card2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.15s; }
 .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-/* LOGIN */
 .login-page { max-width: 360px; margin: 90px auto; padding: 0 20px; }
 .login-card { background: var(--card); border: 1px solid var(--border2); border-radius: 14px; padding: 28px 24px; }
 .login-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
@@ -98,50 +76,29 @@ select.inp option { background: #10101e; }
 .remember-row label { font-size: 11px; color: var(--text2); cursor: pointer; }
 .err-msg { font-size: 11px; color: var(--red); margin-top: 7px; display: none; }
 .err-msg.show { display: block; }
-
-/* ADMIN */
 .admin-page { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
 .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
 .dash-title { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
 .dash-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 3px; letter-spacing: 0.05em; }
 .logout-btn { padding: 6px 12px; background: transparent; border: 1px solid var(--border2); border-radius: 7px; color: var(--text3); font-size: 11px; cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
 .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-/* STATS */
 .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; transition: border-color 0.15s; }
-.stat:hover { border-color: var(--border2); }
 .stat-key { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
 .stat-num { font-family: var(--sans); font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
-.stat-num.purple { color: var(--accent); }
-.stat-num.red { color: var(--red); }
-.stat-num.yellow { color: var(--yellow); }
-.stat-num.green { color: var(--green); }
-
-/* CONFLICT */
+.stat-num.purple { color: var(--accent); } .stat-num.red { color: var(--red); } .stat-num.yellow { color: var(--yellow); } .stat-num.green { color: var(--green); }
 .conflict-alert { display: none; align-items: flex-start; gap: 10px; background: var(--yellow-bg); border: 1px solid rgba(251,189,35,0.2); border-radius: 9px; padding: 12px 14px; margin-bottom: 16px; }
 .conflict-alert .icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 .conflict-alert p { font-size: 11.5px; color: var(--yellow); line-height: 1.6; }
 .conflict-alert strong { display: block; margin-bottom: 2px; font-size: 12px; }
-
-/* FILTERS */
 .filter-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
 .fb { padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text3); font-family: var(--sans); font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
 .fb.on { background: var(--card2); color: var(--text); border-color: var(--accent); }
 .fb:hover:not(.on) { border-color: var(--border2); color: var(--text2); }
-/* Completed filter button distinct style */
 .fb.done-tab { border-color: var(--green-bg); color: var(--text3); }
 .fb.done-tab.on { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-
-/* TASK LIST */
 .task-stack { display: flex; flex-direction: column; gap: 5px; }
-.t {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 9px; padding: 12px 14px;
-  display: grid; grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto; column-gap: 12px; row-gap: 5px;
-  transition: border-color 0.15s, background 0.15s; cursor: default;
-}
+.t { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; column-gap: 12px; row-gap: 5px; transition: border-color 0.15s, background 0.15s; cursor: default; }
 .t:hover { border-color: var(--border2); background: var(--card2); }
 .t.overdue { border-left: 2px solid var(--red); }
 .t.duetoday { border-left: 2px solid var(--yellow); }
@@ -158,31 +115,20 @@ select.inp option { background: #10101e; }
 .chip.date { background: var(--card2); color: var(--text3); border: 1px solid var(--border); }
 .chip.date.late { background: var(--red-bg); color: var(--red); border-color: transparent; }
 .chip.date.now { background: var(--yellow-bg); color: var(--yellow); border-color: transparent; }
-.check-btn {
-  grid-row: 1 / 3; grid-column: 2; align-self: center;
-  width: 24px; height: 24px; border-radius: 6px;
-  background: var(--card2); border: 1px solid var(--border2);
-  color: var(--text3); cursor: pointer; font-size: 11px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; flex-shrink: 0;
-}
+.check-btn { grid-row: 1 / 3; grid-column: 2; align-self: center; width: 24px; height: 24px; border-radius: 6px; background: var(--card2); border: 1px solid var(--border2); color: var(--text3); cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
 .check-btn:hover { background: var(--green-bg); border-color: var(--green); color: var(--green); }
 .check-btn.done { background: var(--green); border-color: var(--green); color: #080810; }
-
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-state .e-icon { font-size: 30px; opacity: 0.2; margin-bottom: 10px; }
 .empty-state p { font-size: 12px; color: var(--text3); }
 .loader { text-align: center; padding: 40px; font-family: var(--mono); font-size: 11px; color: var(--text3); }
-
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
   .nav { padding: 0 16px; }
   .admin-page, .submit-page { padding-left: 16px; padding-right: 16px; }
   .two-col { grid-template-columns: 1fr; }
 }
-@media (max-width: 380px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-}
+@media (max-width: 380px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body onload="boot()">
@@ -195,7 +141,6 @@ select.inp option { background: #10101e; }
   </div>
 </nav>
 
-<!-- SUBMIT VIEW -->
 <div id="view-submit" class="view active">
   <div class="submit-page">
     <div id="form-body">
@@ -219,7 +164,6 @@ select.inp option { background: #10101e; }
   </div>
 </div>
 
-<!-- LOGIN VIEW -->
 <div id="view-login" class="view">
   <div class="login-page">
     <div class="login-card">
@@ -237,13 +181,12 @@ select.inp option { background: #10101e; }
   </div>
 </div>
 
-<!-- ADMIN VIEW -->
 <div id="view-admin" class="view">
   <div class="admin-page">
     <div class="dash-header">
       <div>
         <div class="dash-title">Task Dashboard</div>
-        <div class="dash-sub">SHAHROZ MALIK</div>
+        <div class="dash-sub">SHAHROZ MALIK — LYZOO GROUP LTD</div>
       </div>
       <button class="logout-btn" onclick="doLogout()">Log out</button>
     </div>
@@ -267,13 +210,16 @@ select.inp option { background: #10101e; }
 </div>
 
 <script>
+// ── YOUR APPS SCRIPT URL ──
+var API = 'https://script.google.com/macros/s/AKfycbzcg1OxxxQqGTWKhhHCdrlRg4zMbc-bXE3kdvKBC8mXTPLVSbODZFbkJ22tiZ4iBWav/exec';
+
 var PW = '';
 var sess = ''; var rows = []; var filt = 'all'; var tc = 0;
 var now = new Date(); now.setHours(0,0,0,0);
 
 function offset(d){ var x=new Date(now); x.setDate(x.getDate()+d); return x.toISOString().split('T')[0]; }
 
-function dateLabel(s, done){
+function dateLabel(s,done){
   if(!s) return {txt:'No date',cls:''};
   var d=new Date(s); d.setHours(0,0,0,0);
   var df=Math.round((d-now)/86400000);
@@ -284,15 +230,22 @@ function dateLabel(s, done){
   return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
 }
 
+function api(data){
+  return fetch(API, {
+    method:'POST',
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.json(); });
+}
+
 function boot(){
   addTask();
-  google.script.run
-    .withSuccessHandler(function(config){
+  api({ action:'getConfig' })
+    .then(function(config){
       PW = config.password;
       var s = localStorage.getItem('sz_pw');
       if(s === PW){ sess = s; }
     })
-    .getConfig();
+    .catch(function(){ console.log('Config load failed'); });
 }
 
 function showView(v){
@@ -305,19 +258,21 @@ function showView(v){
 
 function goAdmin(){
   document.getElementById('tab-admin').classList.add('active');
-  if(sess===PW){ showView('admin'); loadRows(); }
+  if(sess===PW && PW!==''){ showView('admin'); loadRows(); }
   else showView('login');
 }
 
 function doLogin(){
   var pw=document.getElementById('admin-pw').value;
-  if(pw===PW){
+  if(pw===PW && PW!==''){
     sess=pw;
     if(document.getElementById('remember').checked) localStorage.setItem('sz_pw',pw);
     else localStorage.removeItem('sz_pw');
     document.getElementById('login-err').classList.remove('show');
     showView('admin'); loadRows();
-  } else { document.getElementById('login-err').classList.add('show'); }
+  } else {
+    document.getElementById('login-err').classList.add('show');
+  }
 }
 
 function doLogout(){
@@ -333,23 +288,14 @@ function addTask(){
   var el=document.createElement('div');
   el.className='task-card'; el.id='tk'+n;
   el.innerHTML=
-    '<div class="tc-bar">'+
-      '<span class="tc-label">Task '+n+'</span>'+
-      (n>1?'<button class="tc-remove" onclick="rmTask('+n+')">×</button>':'<span></span>')+
-    '</div>'+
+    '<div class="tc-bar"><span class="tc-label">Task '+n+'</span>'+(n>1?'<button class="tc-remove" onclick="rmTask('+n+')">×</button>':'<span></span>')+'</div>'+
     '<div class="tc-body">'+
-      '<div class="field-wrap" style="margin:0">'+
-        '<label class="field-label">Task / request</label>'+
-        '<input class="inp tn" type="text" placeholder="What do you need Shahroz to do?">'+
-      '</div>'+
+      '<div style="margin:0"><label class="field-label">Task / request</label><input class="inp tn" type="text" placeholder="What do you need Shahroz to do?"></div>'+
       '<div class="two-col">'+
-        '<div><label class="field-label">Category</label>'+
-          '<select class="inp tc"><option value="business">🏢 Business</option><option value="personal">🏠 Personal</option></select></div>'+
-        '<div><label class="field-label">Priority</label>'+
-          '<select class="inp tp"><option value="p2">🟡 High</option><option value="p1">🔴 Critical</option><option value="p3">🟢 Normal</option></select></div>'+
+        '<div><label class="field-label">Category</label><select class="inp tc"><option value="business">🏢 Business</option><option value="personal">🏠 Personal</option></select></div>'+
+        '<div><label class="field-label">Priority</label><select class="inp tp"><option value="p2">🟡 High</option><option value="p1">🔴 Critical</option><option value="p3">🟢 Normal</option></select></div>'+
       '</div>'+
-      '<div><label class="field-label">Deadline</label>'+
-        '<input class="inp td" type="date" value="'+offset(3)+'" min="'+offset(0)+'"></div>'+
+      '<div><label class="field-label">Deadline</label><input class="inp td" type="date" value="'+offset(3)+'" min="'+offset(0)+'"></div>'+
     '</div>';
   document.getElementById('task-list').appendChild(el);
 }
@@ -368,17 +314,16 @@ function submitTasks(){
   if(!tasks.length){alert('Fill in at least one task.');return;}
   var btn=document.getElementById('send-btn');
   btn.disabled=true; btn.textContent='Sending…';
-  google.script.run
-    .withSuccessHandler(function(){
+  api({ action:'submitTasks', payload:{ senderName:nm, tasks:tasks } })
+    .then(function(){
       document.getElementById('form-body').style.display='none';
       document.getElementById('success-state').classList.add('show');
       btn.disabled=false; btn.textContent='Send Tasks →';
     })
-    .withFailureHandler(function(e){
+    .catch(function(e){
       alert('Error: '+(e.message||'unknown'));
       btn.disabled=false; btn.textContent='Send Tasks →';
-    })
-    .submitTasks({senderName:nm,tasks:tasks});
+    });
 }
 
 function resetForm(){
@@ -391,8 +336,9 @@ function resetForm(){
 
 function loadRows(){
   document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
-  google.script.run
-    .withSuccessHandler(function(res){
+  fetch(API+'?action=getTasks&password='+encodeURIComponent(sess))
+    .then(function(r){ return r.json(); })
+    .then(function(res){
       try{
         if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
         if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
@@ -400,10 +346,9 @@ function loadRows(){
         rows=res.tasks; renderAll();
       }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
     })
-    .withFailureHandler(function(e){
-      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Failed: '+(e.message||'?')+'</p></div>';
-    })
-    .getTasks(sess);
+    .catch(function(e){
+      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Failed to load. Check connection.</p></div>';
+    });
 }
 
 function renderAll(){ renderStats(); renderConflict(); renderRows(); }
@@ -415,9 +360,9 @@ function renderStats(){
   var cr=open.filter(function(r){return r.priority==='p1';}).length;
   var dn=rows.filter(function(r){return r.done;}).length;
   document.getElementById('stats-grid').innerHTML=
-    s('Open',open.length,'purple')+s('Overdue',od,'red')+s('Due Today',dt,'yellow')+s('Critical',cr,'red')+s('Done',dn,'green');
+    st('Open',open.length,'purple')+st('Overdue',od,'red')+st('Due Today',dt,'yellow')+st('Critical',cr,'red')+st('Done',dn,'green');
 }
-function s(k,v,c){ return '<div class="stat"><div class="stat-key">'+k+'</div><div class="stat-num '+c+'">'+v+'</div></div>'; }
+function st(k,v,c){ return '<div class="stat"><div class="stat-key">'+k+'</div><div class="stat-num '+c+'">'+v+'</div></div>'; }
 
 function renderConflict(){
   var cnt={};
@@ -439,8 +384,6 @@ function setFilter(f,btn){
 function renderRows(){
   var pl={p1:'Critical',p2:'High',p3:'Normal'};
   var list=rows.slice();
-
-  // ── KEY CHANGE: All & other filters exclude done. Only 'done' tab shows completed ──
   if(filt==='all')           list=list.filter(function(r){return !r.done;});
   else if(filt==='personal') list=list.filter(function(r){return !r.done&&r.category==='personal';});
   else if(filt==='business') list=list.filter(function(r){return !r.done&&r.category==='business';});
@@ -458,7 +401,7 @@ function renderRows(){
 
   var el=document.getElementById('task-stack');
   if(!list.length){
-    var msg = filt==='done' ? 'No completed tasks yet.' : 'No tasks here.';
+    var msg=filt==='done'?'No completed tasks yet.':'No tasks here.';
     el.innerHTML='<div class="empty-state"><div class="e-icon">'+(filt==='done'?'🎉':'📭')+'</div><p>'+msg+'</p></div>';
     return;
   }
@@ -471,7 +414,7 @@ function renderRows(){
     var isTd=!r.done&&dl.cls==='now';
     h+='<div class="t'+(isOv?' overdue':'')+(isTd?' duetoday':'')+(r.done?' done':'')+'">'+
       '<div class="t-title">'+r.task+'</div>'+
-      '<button class="check-btn'+(r.done?' done':'')+'" onclick="toggle(\''+r.id+'\',event)" title="'+(r.done?'Mark incomplete':'Mark done')+'">✓</button>'+
+      '<button class="check-btn'+(r.done?' done':'')+'" onclick="toggle(\''+r.id+'\',event)">✓</button>'+
       '<div class="t-meta">'+
         '<span class="t-from">'+r.from+'</span>'+
         '<span class="chip '+r.category+'">'+r.category+'</span>'+
@@ -485,7 +428,8 @@ function renderRows(){
 
 function toggle(id,e){
   e.stopPropagation();
-  google.script.run.withSuccessHandler(function(){loadRows();}).toggleDone(id,sess);
+  api({ action:'toggleDone', id:id, password:sess })
+    .then(function(){ loadRows(); });
 }
 </script>
 </body>
