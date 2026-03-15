@@ -415,7 +415,7 @@ function addTask(){
         '<div><label class="field-label">Category</label><select class="inp tc"><option value="business">🏢 Business</option><option value="personal">🏠 Personal</option></select></div>'+
         '<div><label class="field-label">Priority</label><select class="inp tp"><option value="p2">🟡 High</option><option value="p1">🔴 Critical</option><option value="p3">🟢 Normal</option></select></div>'+
       '</div>'+
-      '<div><label class="field-label">Deadline</label><input class="inp td" type="date" value="'+offset(3)+'" min="'+offset(0)+'"></div>'+
+      '<div><label class="field-label">Deadline & Time</label><input class="inp td" type="datetime-local" value="'+offset(3)+'T09:00" min="'+offset(0)+'T00:00"></div>'+
     '</div>';
   document.getElementById('task-list').appendChild(el);
 }
