@@ -89,11 +89,11 @@ select.inp option { background: #10101e; }
 .logout-btn { padding: 6px 12px; background: transparent; border: 1px solid var(--border2); border-radius: 7px; color: var(--text3); font-size: 11px; cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
 .logout-btn:hover { border-color: var(--red); color: var(--red); }
 .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
-.stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; transition: border-color 0.15s; cursor: pointer; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; transition: border-color 0.15s; }
 .stat:hover { border-color: var(--border2); }
 .stat-key { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
 .stat-num { font-family: var(--sans); font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
-.stat-num.purple { color: var(--accent); } .stat-num.red { color: var(--red); } .stat-num.yellow { color: var(--yellow); } .stat-num.green { color: var(--green); } .stat-num.grey { color: var(--text3); }
+.stat-num.purple { color: var(--accent); } .stat-num.red { color: var(--red); } .stat-num.yellow { color: var(--yellow); } .stat-num.green { color: var(--green); }
 .conflict-alert { display: none; align-items: flex-start; gap: 10px; background: var(--yellow-bg); border: 1px solid rgba(251,189,35,0.2); border-radius: 9px; padding: 12px 14px; margin-bottom: 16px; }
 .conflict-alert .icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 .conflict-alert p { font-size: 11.5px; color: var(--yellow); line-height: 1.6; }
@@ -124,8 +124,8 @@ select.inp option { background: #10101e; }
 .t.duetoday { border-left: 2px solid var(--yellow); }
 .t.done { opacity: 0.4; }
 .t.deleted { opacity: 0.3; }
-.t-title { font-size: 13px; font-weight: 500; padding-right: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.t-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding-right: 90px; }
+.t-title { font-size: 13px; font-weight: 500; padding-right: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding-right: 96px; }
 .t-from { font-family: var(--mono); font-size: 10px; color: var(--text3); }
 
 .chip { display: inline-flex; align-items: center; padding: 1.5px 7px; border-radius: 4px; font-family: var(--mono); font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
@@ -139,7 +139,6 @@ select.inp option { background: #10101e; }
 .chip.date.now { background: var(--yellow-bg); color: var(--yellow); border-color: transparent; }
 .chip.date.soon { background: rgba(54,211,153,0.08); color: var(--green); border-color: transparent; }
 
-/* action buttons */
 .btn-action {
   width: 26px; height: 26px; border-radius: 6px;
   background: var(--card2); border: 1px solid var(--border2);
@@ -160,9 +159,9 @@ select.inp option { background: #10101e; }
 /* DEADLINE MODAL */
 .dl-edit-wrap { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:500; align-items:center; justify-content:center; }
 .dl-edit-wrap.show { display:flex; }
-.dl-edit-box { background:var(--card); border:1px solid var(--border2); border-radius:14px; padding:28px 24px; width:340px; max-width:92vw; }
+.dl-edit-box { background:var(--card); border:1px solid var(--border2); border-radius:14px; padding:28px 24px; width:360px; max-width:92vw; }
 .dl-edit-box h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
-.dl-edit-box .dl-sub { font-size:11px; color:var(--text2); margin-bottom:16px; line-height:1.5; }
+.dl-sub { font-size:11px; color:var(--text2); margin-bottom:16px; line-height:1.5; }
 .dl-task-preview { font-family:var(--mono); font-size:11px; color:var(--accent); margin-bottom:16px; padding:8px 10px; background:var(--card2); border-radius:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .dl-btn-row { display:flex; gap:8px; margin-top:16px; }
 .dl-save-btn { flex:1; padding:10px; background:var(--accent); border:none; border-radius:8px; color:#fff; font-family:var(--sans); font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; }
@@ -267,11 +266,11 @@ select.inp option { background: #10101e; }
 <div class="dl-edit-wrap" id="dl-modal">
   <div class="dl-edit-box">
     <h3>Edit Deadline</h3>
-    <p class="dl-sub">Update the deadline for this task.</p>
+    <p class="dl-sub">Update the deadline and time for this task.</p>
     <div class="dl-task-preview" id="dl-task-name">—</div>
-    <label class="field-label">New Deadline</label>
-    <input class="inp" type="date" id="dl-new-date">
-    <p class="reminder-note">🔔 Reminders are set automatically on Calendar when tasks are first submitted — Critical: 2hrs before, High: 8hrs before, Normal: 1 day before. Update reminders manually in Google Calendar if needed after changing deadline here.</p>
+    <label class="field-label">New Deadline & Time</label>
+    <input class="inp" type="datetime-local" id="dl-new-date">
+    <p class="reminder-note">🔔 Reminders: Critical = 2hrs before, High = 8hrs before, Normal = 1 day before. These are set when tasks are first submitted. Update manually in Google Calendar if you change the deadline here.</p>
     <div class="dl-btn-row">
       <button class="dl-cancel-btn" onclick="closeDeadlineModal()">Cancel</button>
       <button class="dl-save-btn" id="dl-save-btn" onclick="saveDeadline()">Save Deadline →</button>
@@ -280,7 +279,8 @@ select.inp option { background: #10101e; }
 </div>
 
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbypVfplnd5JFcPE0e6_ma1OgVSmNW-b-Hip_lXkSG1mlG-Vz4NXmXQ-_RYpvHbl2WpP/exec';
+// ── UPDATE THIS URL WHEN YOU REDEPLOY ──
+var API = 'https://script.google.com/macros/s/AKfycbzY2IioBM0520E5MBRZUt_WCgPLFk-xuI8WnvH5jF-R1TwUSZWEzs0KPgEPv0951Jh4/exec';
 
 var PW = '', sess = '', rows = [], filt = 'all', tc = 0;
 var editingTaskId = null;
@@ -292,15 +292,45 @@ function dateLabel(s, done){
   if(!s) return {txt:'No date', dl:'', cls:''};
   var d = new Date(s);
   if(isNaN(d.getTime())) return {txt:'No date', dl:'', cls:''};
-  d.setHours(0,0,0,0);
-  var df = Math.round((d - now) / 86400000);
-  var dlStr = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+  var hasTime = s.indexOf('T') > -1 && s.indexOf('T00:00') === -1 && s.indexOf('T09:00') === -1;
+  var nowFull = new Date();
+  var dMid = new Date(d); dMid.setHours(0,0,0,0);
+  var df = Math.round((dMid - now) / 86400000);
+
+  var dlStr = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+    + (hasTime ? ' at ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '');
+
   if(done) return {txt: dlStr, dl: dlStr, cls:''};
-  if(df < 0) return {txt: Math.abs(df)+'d overdue', dl: dlStr, cls:'late'};
+
+  var diffMs = d - nowFull;
+  var diffMins = Math.round(diffMs / 60000);
+  var diffHours = Math.floor(Math.abs(diffMins) / 60);
+  var diffDays = Math.floor(Math.abs(diffMins) / 1440);
+
+  if(diffMs < 0){
+    if(Math.abs(diffMins) < 60) return {txt: Math.abs(diffMins)+'m overdue', dl: dlStr, cls:'late'};
+    if(Math.abs(diffMins) < 1440) return {txt: diffHours+'h overdue', dl: dlStr, cls:'late'};
+    return {txt: diffDays+'d overdue', dl: dlStr, cls:'late'};
+  }
+
+  if(diffMins < 60) return {txt: 'In '+diffMins+'m', dl: dlStr, cls:'now'};
+  if(diffMins < 1440) return {txt: 'In '+diffHours+'h '+(diffMins%60)+'m', dl: dlStr, cls:'now'};
   if(df === 0) return {txt: 'Due today', dl: dlStr, cls:'now'};
-  if(df === 1) return {txt: 'Tomorrow', dl: dlStr, cls:'soon'};
-  if(df <= 7) return {txt: 'In '+df+' days', dl: dlStr, cls:'soon'};
-  return {txt: 'In '+df+' days', dl: dlStr, cls:''};
+
+  var remHours = Math.floor((diffMins % 1440) / 60);
+  var remMins = diffMins % 60;
+
+  if(df === 1){
+    var t1 = hasTime ? 'Tomorrow, '+remHours+'h '+remMins+'m' : 'Tomorrow';
+    return {txt: t1, dl: dlStr, cls:'soon'};
+  }
+  if(df <= 7){
+    var t2 = hasTime ? 'In '+df+'d '+remHours+'h '+remMins+'m' : 'In '+df+' days';
+    return {txt: t2, dl: dlStr, cls:'soon'};
+  }
+  var t3 = hasTime ? 'In '+df+'d '+remHours+'h' : 'In '+df+' days';
+  return {txt: t3, dl: dlStr, cls:''};
 }
 
 function apiGet(params, callbackFn){
@@ -333,7 +363,6 @@ function boot(){
       if(s === PW){ sess = s; }
     }
   });
-  // Close modal on backdrop click
   document.getElementById('dl-modal').addEventListener('click', function(e){
     if(e.target === this) closeDeadlineModal();
   });
@@ -438,7 +467,7 @@ function renderAll(){ renderStats(); renderConflict(); renderRows(); }
 
 function renderStats(){
   var active = rows.filter(function(r){ return !r.done && !r.deleted; });
-  var od = active.filter(function(r){ return r.deadline && new Date(r.deadline)<now; }).length;
+  var od = active.filter(function(r){ return r.deadline && new Date(r.deadline)<new Date(); }).length;
   var dt = active.filter(function(r){ var d=new Date(r.deadline); d.setHours(0,0,0,0); return d.getTime()===now.getTime(); }).length;
   var cr = active.filter(function(r){ return r.priority==='p1'; }).length;
   var dn = rows.filter(function(r){ return r.done && !r.deleted; }).length;
@@ -449,7 +478,9 @@ function st(k,v,c){ return '<div class="stat"><div class="stat-key">'+k+'</div><
 
 function renderConflict(){
   var cnt = {};
-  rows.filter(function(r){ return !r.done && !r.deleted; }).forEach(function(r){ if(r.deadline) cnt[r.deadline]=(cnt[r.deadline]||0)+1; });
+  rows.filter(function(r){ return !r.done && !r.deleted; }).forEach(function(r){
+    if(r.deadline){ var dk=r.deadline.split('T')[0]; cnt[dk]=(cnt[dk]||0)+1; }
+  });
   var hits = [];
   for(var d in cnt) if(cnt[d]>=3) hits.push(new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}));
   var el = document.getElementById('conflict-alert');
@@ -475,7 +506,7 @@ function renderRows(){
   else if(filt==='p1')       list=list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p1'; });
   else if(filt==='p2')       list=list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p2'; });
   else if(filt==='p3')       list=list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p3'; });
-  else if(filt==='overdue')  list=list.filter(function(r){ return !r.done && !r.deleted && r.deadline && new Date(r.deadline)<now; });
+  else if(filt==='overdue')  list=list.filter(function(r){ return !r.done && !r.deleted && r.deadline && new Date(r.deadline)<new Date(); });
 
   list.sort(function(a,b){
     var pa = {p1:0,p2:1,p3:2};
@@ -499,7 +530,7 @@ function renderRows(){
     var r = list[i];
     var dl = dateLabel(r.deadline, r.done || r.deleted);
     var isOv = !r.done && !r.deleted && dl.cls==='late';
-    var isTd = !r.done && !r.deleted && dl.cls==='now';
+    var isTd = !r.done && !r.deleted && (dl.cls==='now');
     var safeTask = r.task.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 
     h += '<div class="t'+(isOv?' overdue':'')+(isTd?' duetoday':'')+(r.done?' done':'')+(r.deleted?' deleted':'')+'">'+
@@ -509,12 +540,12 @@ function renderRows(){
         '<span class="chip '+r.category+'">'+r.category+'</span>'+
         '<span class="chip '+r.priority+'">'+pl[r.priority]+'</span>'+
         '<span class="chip date '+dl.cls+'">'+dl.txt+'</span>'+
-        (dl.dl ? '<span class="chip date" style="opacity:0.5">'+dl.dl+'</span>' : '')+
+        (dl.dl ? '<span class="chip date" style="opacity:0.5;font-size:8px">'+dl.dl+'</span>' : '')+
       '</div>'+
       '<div class="t-actions">'+
-        (filt !== 'deleted' ? '<button class="btn-action btn-edit" onclick="openDeadlineModal(\''+r.id+'\',\''+safeTask+'\',\''+r.deadline+'\',event)" title="Edit deadline">✎</button>' : '')+
+        (filt!=='deleted' ? '<button class="btn-action btn-edit" onclick="openDeadlineModal(\''+r.id+'\',\''+safeTask+'\',\''+r.deadline+'\',event)" title="Edit deadline">✎</button>' : '')+
         '<button class="btn-action btn-done'+(r.done?' ck':'')+'" onclick="toggleDone(\''+r.id+'\',event)" title="'+(r.done?'Mark incomplete':'Mark done')+'">✓</button>'+
-        (filt !== 'deleted' ? '<button class="btn-action btn-del" onclick="deleteTask(\''+r.id+'\',event)" title="Delete">✕</button>' : '')+
+        (filt!=='deleted' ? '<button class="btn-action btn-del" onclick="deleteTask(\''+r.id+'\',event)" title="Delete">✕</button>' : '')+
       '</div>'+
     '</div>';
   }
@@ -536,7 +567,10 @@ function openDeadlineModal(id, name, currentDeadline, e){
   e.stopPropagation();
   editingTaskId = id;
   document.getElementById('dl-task-name').textContent = name;
-  document.getElementById('dl-new-date').value = currentDeadline || offset(1);
+  var dlVal = currentDeadline
+    ? (currentDeadline.indexOf('T') > -1 ? currentDeadline.substring(0,16) : currentDeadline+'T09:00')
+    : offset(1)+'T09:00';
+  document.getElementById('dl-new-date').value = dlVal;
   document.getElementById('dl-modal').classList.add('show');
 }
 
