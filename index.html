@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shahroz Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --bg2: #0d0d18;
+  --card: #10101e;
+  --card2: #161628;
+  --border: #1e1e35;
+  --border2: #262640;
+  --accent: #7c6dfa;
+  --accent-glow: rgba(124,109,250,0.18);
+  --red: #f0506e;
+  --red-bg: rgba(240,80,110,0.1);
+  --green: #36d399;
+  --green-bg: rgba(54,211,153,0.1);
+  --yellow: #fbbd23;
+  --yellow-bg: rgba(251,189,35,0.1);
+  --text: #e2e2f0;
+  --text2: #9090b0;
+  --text3: #50506a;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Outfit', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(124,109,250,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124,109,250,0.03) 1px, transparent 1px);
+  background-size: 40px 40px; pointer-events: none; z-index: 0;
+}
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 52px;
+  background: rgba(8,8,16,0.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-family: var(--sans); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text2); }
+.logo b { color: var(--text); font-weight: 700; }
+.logo .dot { color: var(--accent); }
+.nav-tabs { display: flex; gap: 2px; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.nav-tab { padding: 5px 14px; border-radius: 6px; border: none; font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; background: transparent; color: var(--text2); letter-spacing: 0.02em; }
+.nav-tab.active { background: var(--accent); color: #fff; }
+.view { display: none; position: relative; z-index: 1; }
+.view.active { display: block; }
+
+/* SUBMIT */
+.submit-page { max-width: 480px; margin: 0 auto; padding: 44px 20px 80px; }
+.page-eyebrow { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+.page-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; letter-spacing: -0.3px; }
+.page-title em { color: var(--accent); font-style: normal; }
+.page-sub { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 28px; }
+.field-wrap { margin-bottom: 16px; }
+.field-label { display: block; font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.inp { width: 100%; background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 13px; color: var(--text); font-family: var(--sans); font-size: 13px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; appearance: none; }
+.inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+select.inp { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2350506a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+select.inp option { background: #10101e; }
+.name-card { background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 16px; margin-bottom: 18px; }
+.task-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.task-card { background: var(--card); border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.tc-bar { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--card2); border-bottom: 1px solid var(--border); }
+.tc-label { font-family: var(--mono); font-size: 9.5px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+.tc-remove { width: 20px; height: 20px; border-radius: 5px; background: transparent; border: 1px solid var(--border2); color: var(--text3); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; line-height: 1; }
+.tc-remove:hover { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.tc-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.add-row { width: 100%; padding: 10px; background: transparent; border: 1px dashed var(--border2); border-radius: 8px; color: var(--text3); font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
+.add-row:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.send-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em; }
+.send-btn:hover { filter: brightness(1.1); box-shadow: 0 4px 20px rgba(124,109,250,0.3); }
+.send-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; box-shadow: none; }
+.success-state { display: none; text-align: center; padding: 70px 20px; }
+.success-state.show { display: block; }
+.success-icon { font-size: 44px; display: block; margin-bottom: 14px; }
+.success-state h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.success-state p { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+.reset-btn { margin-top: 20px; padding: 9px 22px; display: inline-block; background: var(--card2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.15s; }
+.reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* LOGIN */
+.login-page { max-width: 360px; margin: 90px auto; padding: 0 20px; }
+.login-card { background: var(--card); border: 1px solid var(--border2); border-radius: 14px; padding: 28px 24px; }
+.login-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.login-card p { font-size: 12px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+.login-btn { width: 100%; padding: 11px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: var(--sans); font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 10px; transition: all 0.2s; }
+.login-btn:hover { filter: brightness(1.1); }
+.remember-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.remember-row input { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+.remember-row label { font-size: 11px; color: var(--text2); cursor: pointer; }
+.err-msg { font-size: 11px; color: var(--red); margin-top: 7px; display: none; }
+.err-msg.show { display: block; }
+
+/* ADMIN */
+.admin-page { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
+.dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
+.dash-title { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
+.dash-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 3px; letter-spacing: 0.05em; }
+.logout-btn { padding: 6px 12px; background: transparent; border: 1px solid var(--border2); border-radius: 7px; color: var(--text3); font-size: 11px; cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
+.logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; transition: border-color 0.15s; }
+.stat:hover { border-color: var(--border2); }
+.stat-key { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.stat-num { font-family: var(--sans); font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
+.stat-num.purple { color: var(--accent); }
+.stat-num.red { color: var(--red); }
+.stat-num.yellow { color: var(--yellow); }
+.stat-num.green { color: var(--green); }
+
+/* CONFLICT */
+.conflict-alert { display: none; align-items: flex-start; gap: 10px; background: var(--yellow-bg); border: 1px solid rgba(251,189,35,0.2); border-radius: 9px; padding: 12px 14px; margin-bottom: 16px; }
+.conflict-alert .icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.conflict-alert p { font-size: 11.5px; color: var(--yellow); line-height: 1.6; }
+.conflict-alert strong { display: block; margin-bottom: 2px; font-size: 12px; }
+
+/* FILTERS */
+.filter-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+.fb { padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text3); font-family: var(--sans); font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+.fb.on { background: var(--card2); color: var(--text); border-color: var(--accent); }
+.fb:hover:not(.on) { border-color: var(--border2); color: var(--text2); }
+/* Completed filter button distinct style */
+.fb.done-tab { border-color: var(--green-bg); color: var(--text3); }
+.fb.done-tab.on { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+
+/* TASK LIST */
+.task-stack { display: flex; flex-direction: column; gap: 5px; }
+.t {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px 14px;
+  display: grid; grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto; column-gap: 12px; row-gap: 5px;
+  transition: border-color 0.15s, background 0.15s; cursor: default;
+}
+.t:hover { border-color: var(--border2); background: var(--card2); }
+.t.overdue { border-left: 2px solid var(--red); }
+.t.duetoday { border-left: 2px solid var(--yellow); }
+.t.done { opacity: 0.4; }
+.t-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; align-self: center; }
+.t-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; grid-column: 1; }
+.t-from { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.chip { display: inline-flex; align-items: center; padding: 1.5px 7px; border-radius: 4px; font-family: var(--mono); font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.chip.personal { background: rgba(124,109,250,0.12); color: var(--accent); }
+.chip.business { background: rgba(54,211,153,0.1); color: var(--green); }
+.chip.p1 { background: var(--red-bg); color: var(--red); }
+.chip.p2 { background: var(--yellow-bg); color: var(--yellow); }
+.chip.p3 { background: var(--green-bg); color: var(--green); }
+.chip.date { background: var(--card2); color: var(--text3); border: 1px solid var(--border); }
+.chip.date.late { background: var(--red-bg); color: var(--red); border-color: transparent; }
+.chip.date.now { background: var(--yellow-bg); color: var(--yellow); border-color: transparent; }
+.check-btn {
+  grid-row: 1 / 3; grid-column: 2; align-self: center;
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--card2); border: 1px solid var(--border2);
+  color: var(--text3); cursor: pointer; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.check-btn:hover { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.check-btn.done { background: var(--green); border-color: var(--green); color: #080810; }
+
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-state .e-icon { font-size: 30px; opacity: 0.2; margin-bottom: 10px; }
+.empty-state p { font-size: 12px; color: var(--text3); }
+.loader { text-align: center; padding: 40px; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .nav { padding: 0 16px; }
+  .admin-page, .submit-page { padding-left: 16px; padding-right: 16px; }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 380px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body onload="boot()">
+
+<nav class="nav">
+  <div class="logo"><b>Shahroz</b><span class="dot">.</span>tasks</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-submit" onclick="showView('submit')">Submit</button>
+    <button class="nav-tab" id="tab-admin" onclick="goAdmin()">Admin ↗</button>
+  </div>
+</nav>
+
+<!-- SUBMIT VIEW -->
+<div id="view-submit" class="view active">
+  <div class="submit-page">
+    <div id="form-body">
+      <div class="page-eyebrow">Task Request</div>
+      <h1 class="page-title">Got something for <em>Shahroz?</em></h1>
+      <p class="page-sub">Drop your tasks below — set priority and deadline.<br>Your submission is private. Nobody else sees yours.</p>
+      <div class="name-card">
+        <label class="field-label">Your name</label>
+        <input class="inp" id="sender-name" type="text" placeholder="e.g. Ahmed, Sarah, Mum…" autocomplete="off">
+      </div>
+      <div class="task-list" id="task-list"></div>
+      <button class="add-row" onclick="addTask()">+ Add another task</button>
+      <button class="send-btn" id="send-btn" onclick="submitTasks()">Send Tasks →</button>
+    </div>
+    <div class="success-state" id="success-state">
+      <span class="success-icon">✅</span>
+      <h2>Tasks sent!</h2>
+      <p>Shahroz can see them in the dashboard.<br>Thanks for submitting.</p>
+      <button class="reset-btn" onclick="resetForm()">Submit more tasks</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN VIEW -->
+<div id="view-login" class="view">
+  <div class="login-page">
+    <div class="login-card">
+      <h2>Admin Access</h2>
+      <p>Enter your password to view and manage tasks.</p>
+      <label class="field-label">Password</label>
+      <input class="inp" id="admin-pw" type="password" placeholder="Enter password…" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="remember-row">
+        <input type="checkbox" id="remember" checked>
+        <label for="remember">Keep me logged in on this device</label>
+      </div>
+      <p class="err-msg" id="login-err">Incorrect password.</p>
+      <button class="login-btn" onclick="doLogin()">Enter Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN VIEW -->
+<div id="view-admin" class="view">
+  <div class="admin-page">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Task Dashboard</div>
+        <div class="dash-sub">SHAHROZ MALIK</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Log out</button>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="conflict-alert" id="conflict-alert">
+      <span class="icon">⚠</span>
+      <p><strong>Deadline Conflicts</strong><span id="conflict-msg"></span></p>
+    </div>
+    <div class="filter-bar">
+      <button class="fb on" onclick="setFilter('all',this)">All</button>
+      <button class="fb" onclick="setFilter('personal',this)">Personal</button>
+      <button class="fb" onclick="setFilter('business',this)">Business</button>
+      <button class="fb" onclick="setFilter('p1',this)">🔴 Critical</button>
+      <button class="fb" onclick="setFilter('p2',this)">🟡 High</button>
+      <button class="fb" onclick="setFilter('p3',this)">🟢 Normal</button>
+      <button class="fb" onclick="setFilter('overdue',this)">Overdue</button>
+      <button class="fb done-tab" onclick="setFilter('done',this)">✅ Completed</button>
+    </div>
+    <div class="task-stack" id="task-stack"><div class="loader">Loading…</div></div>
+  </div>
+</div>
+
+<script>
+var PW = '';
+var sess = ''; var rows = []; var filt = 'all'; var tc = 0;
+var now = new Date(); now.setHours(0,0,0,0);
+
+function offset(d){ var x=new Date(now); x.setDate(x.getDate()+d); return x.toISOString().split('T')[0]; }
+
+function dateLabel(s, done){
+  if(!s) return {txt:'No date',cls:''};
+  var d=new Date(s); d.setHours(0,0,0,0);
+  var df=Math.round((d-now)/86400000);
+  if(done) return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
+  if(df<0) return {txt:Math.abs(df)+'d overdue',cls:'late'};
+  if(df===0) return {txt:'Due today',cls:'now'};
+  if(df===1) return {txt:'Tomorrow',cls:''};
+  return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
+}
+
+function boot(){
+  addTask();
+  google.script.run
+    .withSuccessHandler(function(config){
+      PW = config.password;
+      var s = localStorage.getItem('sz_pw');
+      if(s === PW){ sess = s; }
+    })
+    .getConfig();
+}
+
+function showView(v){
+  document.querySelectorAll('.view').forEach(function(e){e.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(e){e.classList.remove('active');});
+  document.getElementById('view-'+v).classList.add('active');
+  var t=document.getElementById('tab-'+(v==='admin'?'admin':'submit'));
+  if(t) t.classList.add('active');
+}
+
+function goAdmin(){
+  document.getElementById('tab-admin').classList.add('active');
+  if(sess===PW){ showView('admin'); loadRows(); }
+  else showView('login');
+}
+
+function doLogin(){
+  var pw=document.getElementById('admin-pw').value;
+  if(pw===PW){
+    sess=pw;
+    if(document.getElementById('remember').checked) localStorage.setItem('sz_pw',pw);
+    else localStorage.removeItem('sz_pw');
+    document.getElementById('login-err').classList.remove('show');
+    showView('admin'); loadRows();
+  } else { document.getElementById('login-err').classList.add('show'); }
+}
+
+function doLogout(){
+  sess=''; localStorage.removeItem('sz_pw');
+  document.getElementById('admin-pw').value='';
+  showView('submit');
+  document.getElementById('tab-submit').classList.add('active');
+}
+
+function addTask(){
+  tc++;
+  var n=tc;
+  var el=document.createElement('div');
+  el.className='task-card'; el.id='tk'+n;
+  el.innerHTML=
+    '<div class="tc-bar">'+
+      '<span class="tc-label">Task '+n+'</span>'+
+      (n>1?'<button class="tc-remove" onclick="rmTask('+n+')">×</button>':'<span></span>')+
+    '</div>'+
+    '<div class="tc-body">'+
+      '<div class="field-wrap" style="margin:0">'+
+        '<label class="field-label">Task / request</label>'+
+        '<input class="inp tn" type="text" placeholder="What do you need Shahroz to do?">'+
+      '</div>'+
+      '<div class="two-col">'+
+        '<div><label class="field-label">Category</label>'+
+          '<select class="inp tc"><option value="business">🏢 Business</option><option value="personal">🏠 Personal</option></select></div>'+
+        '<div><label class="field-label">Priority</label>'+
+          '<select class="inp tp"><option value="p2">🟡 High</option><option value="p1">🔴 Critical</option><option value="p3">🟢 Normal</option></select></div>'+
+      '</div>'+
+      '<div><label class="field-label">Deadline</label>'+
+        '<input class="inp td" type="date" value="'+offset(3)+'" min="'+offset(0)+'"></div>'+
+    '</div>';
+  document.getElementById('task-list').appendChild(el);
+}
+
+function rmTask(n){ var e=document.getElementById('tk'+n); if(e)e.remove(); }
+
+function submitTasks(){
+  var nm=document.getElementById('sender-name').value.trim();
+  if(!nm){alert('Please enter your name.');return;}
+  var cards=document.querySelectorAll('.task-card');
+  var tasks=[];
+  for(var i=0;i<cards.length;i++){
+    var v=cards[i].querySelector('.tn').value.trim(); if(!v) continue;
+    tasks.push({name:v,category:cards[i].querySelector('.tc').value,priority:cards[i].querySelector('.tp').value,deadline:cards[i].querySelector('.td').value});
+  }
+  if(!tasks.length){alert('Fill in at least one task.');return;}
+  var btn=document.getElementById('send-btn');
+  btn.disabled=true; btn.textContent='Sending…';
+  google.script.run
+    .withSuccessHandler(function(){
+      document.getElementById('form-body').style.display='none';
+      document.getElementById('success-state').classList.add('show');
+      btn.disabled=false; btn.textContent='Send Tasks →';
+    })
+    .withFailureHandler(function(e){
+      alert('Error: '+(e.message||'unknown'));
+      btn.disabled=false; btn.textContent='Send Tasks →';
+    })
+    .submitTasks({senderName:nm,tasks:tasks});
+}
+
+function resetForm(){
+  document.getElementById('sender-name').value='';
+  document.getElementById('task-list').innerHTML='';
+  tc=0; addTask();
+  document.getElementById('form-body').style.display='';
+  document.getElementById('success-state').classList.remove('show');
+}
+
+function loadRows(){
+  document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
+  google.script.run
+    .withSuccessHandler(function(res){
+      try{
+        if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
+        if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
+        if(!res.tasks||!res.tasks.length){document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>';document.getElementById('stats-grid').innerHTML='';return;}
+        rows=res.tasks; renderAll();
+      }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
+    })
+    .withFailureHandler(function(e){
+      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Failed: '+(e.message||'?')+'</p></div>';
+    })
+    .getTasks(sess);
+}
+
+function renderAll(){ renderStats(); renderConflict(); renderRows(); }
+
+function renderStats(){
+  var open=rows.filter(function(r){return !r.done;});
+  var od=open.filter(function(r){return new Date(r.deadline)<now;}).length;
+  var dt=open.filter(function(r){var d=new Date(r.deadline);d.setHours(0,0,0,0);return d.getTime()===now.getTime();}).length;
+  var cr=open.filter(function(r){return r.priority==='p1';}).length;
+  var dn=rows.filter(function(r){return r.done;}).length;
+  document.getElementById('stats-grid').innerHTML=
+    s('Open',open.length,'purple')+s('Overdue',od,'red')+s('Due Today',dt,'yellow')+s('Critical',cr,'red')+s('Done',dn,'green');
+}
+function s(k,v,c){ return '<div class="stat"><div class="stat-key">'+k+'</div><div class="stat-num '+c+'">'+v+'</div></div>'; }
+
+function renderConflict(){
+  var cnt={};
+  rows.filter(function(r){return !r.done;}).forEach(function(r){cnt[r.deadline]=(cnt[r.deadline]||0)+1;});
+  var hits=[];
+  for(var d in cnt) if(cnt[d]>=3) hits.push(new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}));
+  var el=document.getElementById('conflict-alert');
+  if(hits.length){el.style.display='flex';document.getElementById('conflict-msg').textContent=' Heavy load on: '+hits.join(', ')+'. Consider rescheduling.';}
+  else el.style.display='none';
+}
+
+function setFilter(f,btn){
+  filt=f;
+  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  renderRows();
+}
+
+function renderRows(){
+  var pl={p1:'Critical',p2:'High',p3:'Normal'};
+  var list=rows.slice();
+
+  // ── KEY CHANGE: All & other filters exclude done. Only 'done' tab shows completed ──
+  if(filt==='all')           list=list.filter(function(r){return !r.done;});
+  else if(filt==='personal') list=list.filter(function(r){return !r.done&&r.category==='personal';});
+  else if(filt==='business') list=list.filter(function(r){return !r.done&&r.category==='business';});
+  else if(filt==='p1')       list=list.filter(function(r){return !r.done&&r.priority==='p1';});
+  else if(filt==='p2')       list=list.filter(function(r){return !r.done&&r.priority==='p2';});
+  else if(filt==='p3')       list=list.filter(function(r){return !r.done&&r.priority==='p3';});
+  else if(filt==='overdue')  list=list.filter(function(r){return !r.done&&new Date(r.deadline)<now;});
+  else if(filt==='done')     list=list.filter(function(r){return r.done;});
+
+  list.sort(function(a,b){
+    var po={p1:0,p2:1,p3:2};
+    if(po[a.priority]!==po[b.priority]) return po[a.priority]-po[b.priority];
+    return new Date(a.deadline)-new Date(b.deadline);
+  });
+
+  var el=document.getElementById('task-stack');
+  if(!list.length){
+    var msg = filt==='done' ? 'No completed tasks yet.' : 'No tasks here.';
+    el.innerHTML='<div class="empty-state"><div class="e-icon">'+(filt==='done'?'🎉':'📭')+'</div><p>'+msg+'</p></div>';
+    return;
+  }
+
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var r=list[i];
+    var dl=dateLabel(r.deadline,r.done);
+    var isOv=!r.done&&dl.cls==='late';
+    var isTd=!r.done&&dl.cls==='now';
+    h+='<div class="t'+(isOv?' overdue':'')+(isTd?' duetoday':'')+(r.done?' done':'')+'">'+
+      '<div class="t-title">'+r.task+'</div>'+
+      '<button class="check-btn'+(r.done?' done':'')+'" onclick="toggle(\''+r.id+'\',event)" title="'+(r.done?'Mark incomplete':'Mark done')+'">✓</button>'+
+      '<div class="t-meta">'+
+        '<span class="t-from">'+r.from+'</span>'+
+        '<span class="chip '+r.category+'">'+r.category+'</span>'+
+        '<span class="chip '+r.priority+'">'+pl[r.priority]+'</span>'+
+        '<span class="chip date '+dl.cls+'">'+dl.txt+'</span>'+
+      '</div>'+
+    '</div>';
+  }
+  el.innerHTML=h;
+}
+
+function toggle(id,e){
+  e.stopPropagation();
+  google.script.run.withSuccessHandler(function(){loadRows();}).toggleDone(id,sess);
+}
+</script>
+</body>
+</html>
