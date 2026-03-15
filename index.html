@@ -124,8 +124,8 @@ select.inp option { background: #10101e; }
 .t.duetoday { border-left: 2px solid var(--yellow); }
 .t.done { opacity: 0.4; }
 .t.deleted { opacity: 0.3; }
-.t-title { font-size: 13px; font-weight: 500; padding-right: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.t-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding-right: 70px; }
+.t-title { font-size: 13px; font-weight: 500; padding-right: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding-right: 90px; }
 .t-from { font-family: var(--mono); font-size: 10px; color: var(--text3); }
 
 .chip { display: inline-flex; align-items: center; padding: 1.5px 7px; border-radius: 4px; font-family: var(--mono); font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
@@ -147,18 +147,30 @@ select.inp option { background: #10101e; }
   display: flex; align-items: center; justify-content: center;
   transition: all 0.15s; flex-shrink: 0; color: var(--text3);
 }
-
-.btn-done { grid-column: 2; }
-.btn-del  { grid-column: 3; }
 .btn-done:hover { background: var(--green-bg); border-color: var(--green); color: var(--green); }
 .btn-done.ck { background: var(--green); border-color: var(--green); color: #080810; }
 .btn-del:hover { background: var(--red-bg); border-color: var(--red); color: var(--red); }
-.btn-del.ck { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.btn-edit:hover { background: rgba(124,109,250,0.15); border-color: var(--accent); color: var(--accent); }
 
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-state .e-icon { font-size: 30px; opacity: 0.2; margin-bottom: 10px; }
 .empty-state p { font-size: 12px; color: var(--text3); }
 .loader { text-align: center; padding: 40px; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+/* DEADLINE MODAL */
+.dl-edit-wrap { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:500; align-items:center; justify-content:center; }
+.dl-edit-wrap.show { display:flex; }
+.dl-edit-box { background:var(--card); border:1px solid var(--border2); border-radius:14px; padding:28px 24px; width:340px; max-width:92vw; }
+.dl-edit-box h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
+.dl-edit-box .dl-sub { font-size:11px; color:var(--text2); margin-bottom:16px; line-height:1.5; }
+.dl-task-preview { font-family:var(--mono); font-size:11px; color:var(--accent); margin-bottom:16px; padding:8px 10px; background:var(--card2); border-radius:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dl-btn-row { display:flex; gap:8px; margin-top:16px; }
+.dl-save-btn { flex:1; padding:10px; background:var(--accent); border:none; border-radius:8px; color:#fff; font-family:var(--sans); font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; }
+.dl-save-btn:hover { filter:brightness(1.1); }
+.dl-save-btn:disabled { opacity:0.5; cursor:not-allowed; filter:none; }
+.dl-cancel-btn { padding:10px 16px; background:transparent; border:1px solid var(--border2); border-radius:8px; color:var(--text2); font-family:var(--sans); font-size:13px; cursor:pointer; transition:all 0.2s; }
+.dl-cancel-btn:hover { border-color:var(--red); color:var(--red); }
+.reminder-note { font-size:10px; color:var(--text3); margin-top:10px; line-height:1.6; padding:8px 10px; background:var(--card2); border-radius:6px; }
 
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
@@ -251,10 +263,27 @@ select.inp option { background: #10101e; }
   </div>
 </div>
 
+<!-- DEADLINE MODAL -->
+<div class="dl-edit-wrap" id="dl-modal">
+  <div class="dl-edit-box">
+    <h3>Edit Deadline</h3>
+    <p class="dl-sub">Update the deadline for this task.</p>
+    <div class="dl-task-preview" id="dl-task-name">—</div>
+    <label class="field-label">New Deadline</label>
+    <input class="inp" type="date" id="dl-new-date">
+    <p class="reminder-note">🔔 Reminders are set automatically on Calendar when tasks are first submitted — Critical: 2hrs before, High: 8hrs before, Normal: 1 day before. Update reminders manually in Google Calendar if needed after changing deadline here.</p>
+    <div class="dl-btn-row">
+      <button class="dl-cancel-btn" onclick="closeDeadlineModal()">Cancel</button>
+      <button class="dl-save-btn" id="dl-save-btn" onclick="saveDeadline()">Save Deadline →</button>
+    </div>
+  </div>
+</div>
+
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbzcqCAISTXLVXgtMu2zF_Ir0apOtj-4NpmQ-KFBeRuqo39gPy89uO_FLpzbWL2rpgnm/exec';
+var API = 'https://script.google.com/macros/s/AKfycbypVfplnd5JFcPE0e6_ma1OgVSmNW-b-Hip_lXkSG1mlG-Vz4NXmXQ-_RYpvHbl2WpP/exec';
 
 var PW = '', sess = '', rows = [], filt = 'all', tc = 0;
+var editingTaskId = null;
 var now = new Date(); now.setHours(0,0,0,0);
 
 function offset(d){ var x=new Date(now); x.setDate(x.getDate()+d); return x.toISOString().split('T')[0]; }
@@ -303,6 +332,10 @@ function boot(){
       var s = localStorage.getItem('sz_pw');
       if(s === PW){ sess = s; }
     }
+  });
+  // Close modal on backdrop click
+  document.getElementById('dl-modal').addEventListener('click', function(e){
+    if(e.target === this) closeDeadlineModal();
   });
 }
 
@@ -409,7 +442,6 @@ function renderStats(){
   var dt = active.filter(function(r){ var d=new Date(r.deadline); d.setHours(0,0,0,0); return d.getTime()===now.getTime(); }).length;
   var cr = active.filter(function(r){ return r.priority==='p1'; }).length;
   var dn = rows.filter(function(r){ return r.done && !r.deleted; }).length;
-  var dl = rows.filter(function(r){ return r.deleted; }).length;
   document.getElementById('stats-grid').innerHTML =
     st('Open',active.length,'purple')+st('Overdue',od,'red')+st('Due Today',dt,'yellow')+st('Critical',cr,'red')+st('Done',dn,'green');
 }
@@ -435,35 +467,22 @@ function setFilter(f, btn){
 function renderRows(){
   var pl = {p1:'Critical', p2:'High', p3:'Normal'};
   var list = rows.slice();
+  if(filt==='deleted')       list=list.filter(function(r){ return r.deleted; });
+  else if(filt==='done')     list=list.filter(function(r){ return r.done && !r.deleted; });
+  else if(filt==='all')      list=list.filter(function(r){ return !r.done && !r.deleted; });
+  else if(filt==='personal') list=list.filter(function(r){ return !r.done && !r.deleted && r.category==='personal'; });
+  else if(filt==='business') list=list.filter(function(r){ return !r.done && !r.deleted && r.category==='business'; });
+  else if(filt==='p1')       list=list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p1'; });
+  else if(filt==='p2')       list=list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p2'; });
+  else if(filt==='p3')       list=list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p3'; });
+  else if(filt==='overdue')  list=list.filter(function(r){ return !r.done && !r.deleted && r.deadline && new Date(r.deadline)<now; });
 
-  if(filt==='deleted'){
-    list = list.filter(function(r){ return r.deleted; });
-  } else if(filt==='done'){
-    list = list.filter(function(r){ return r.done && !r.deleted; });
-  } else if(filt==='all'){
-    list = list.filter(function(r){ return !r.done && !r.deleted; });
-  } else if(filt==='personal'){
-    list = list.filter(function(r){ return !r.done && !r.deleted && r.category==='personal'; });
-  } else if(filt==='business'){
-    list = list.filter(function(r){ return !r.done && !r.deleted && r.category==='business'; });
-  } else if(filt==='p1'){
-    list = list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p1'; });
-  } else if(filt==='p2'){
-    list = list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p2'; });
-  } else if(filt==='p3'){
-    list = list.filter(function(r){ return !r.done && !r.deleted && r.priority==='p3'; });
-  } else if(filt==='overdue'){
-    list = list.filter(function(r){ return !r.done && !r.deleted && r.deadline && new Date(r.deadline)<now; });
-  }
-
-  // Sort by deadline (earliest first), nulls last
   list.sort(function(a,b){
     var pa = {p1:0,p2:1,p3:2};
     if(!a.deadline && !b.deadline) return 0;
     if(!a.deadline) return 1;
     if(!b.deadline) return -1;
-    var da = new Date(a.deadline);
-    var db = new Date(b.deadline);
+    var da = new Date(a.deadline), db = new Date(b.deadline);
     if(da.getTime() !== db.getTime()) return da - db;
     return (pa[a.priority]||2) - (pa[b.priority]||2);
   });
@@ -481,7 +500,7 @@ function renderRows(){
     var dl = dateLabel(r.deadline, r.done || r.deleted);
     var isOv = !r.done && !r.deleted && dl.cls==='late';
     var isTd = !r.done && !r.deleted && dl.cls==='now';
-    var showDel = filt !== 'deleted';
+    var safeTask = r.task.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 
     h += '<div class="t'+(isOv?' overdue':'')+(isTd?' duetoday':'')+(r.done?' done':'')+(r.deleted?' deleted':'')+'">'+
       '<div class="t-title">'+r.task+'</div>'+
@@ -490,9 +509,10 @@ function renderRows(){
         '<span class="chip '+r.category+'">'+r.category+'</span>'+
         '<span class="chip '+r.priority+'">'+pl[r.priority]+'</span>'+
         '<span class="chip date '+dl.cls+'">'+dl.txt+'</span>'+
-        (dl.dl ? '<span class="chip date" style="opacity:0.55">'+dl.dl+'</span>' : '')+
+        (dl.dl ? '<span class="chip date" style="opacity:0.5">'+dl.dl+'</span>' : '')+
       '</div>'+
       '<div class="t-actions">'+
+        (filt !== 'deleted' ? '<button class="btn-action btn-edit" onclick="openDeadlineModal(\''+r.id+'\',\''+safeTask+'\',\''+r.deadline+'\',event)" title="Edit deadline">✎</button>' : '')+
         '<button class="btn-action btn-done'+(r.done?' ck':'')+'" onclick="toggleDone(\''+r.id+'\',event)" title="'+(r.done?'Mark incomplete':'Mark done')+'">✓</button>'+
         (filt !== 'deleted' ? '<button class="btn-action btn-del" onclick="deleteTask(\''+r.id+'\',event)" title="Delete">✕</button>' : '')+
       '</div>'+
@@ -510,6 +530,33 @@ function deleteTask(id, e){
   e.stopPropagation();
   if(!confirm('Delete this task?')) return;
   apiGet({ action:'deleteTask', id:id, password:sess }, function(){ loadRows(); });
+}
+
+function openDeadlineModal(id, name, currentDeadline, e){
+  e.stopPropagation();
+  editingTaskId = id;
+  document.getElementById('dl-task-name').textContent = name;
+  document.getElementById('dl-new-date').value = currentDeadline || offset(1);
+  document.getElementById('dl-modal').classList.add('show');
+}
+
+function closeDeadlineModal(){
+  editingTaskId = null;
+  document.getElementById('dl-modal').classList.remove('show');
+}
+
+function saveDeadline(){
+  var newDate = document.getElementById('dl-new-date').value;
+  if(!newDate){ alert('Please pick a date.'); return; }
+  if(!editingTaskId) return;
+  var btn = document.getElementById('dl-save-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  apiGet({ action:'updateDeadline', id:editingTaskId, deadline:newDate, password:sess }, function(res){
+    btn.textContent = 'Save Deadline →'; btn.disabled = false;
+    if(res && res.error){ alert('Error: '+res.error); return; }
+    closeDeadlineModal();
+    loadRows();
+  });
 }
 </script>
 </body>
