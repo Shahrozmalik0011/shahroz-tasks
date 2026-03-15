@@ -210,10 +210,10 @@ select.inp option { background: #10101e; }
 </div>
 
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbz4PizncDlP66cuio48bkd8hsbTweWcEm_0zQY_gtoHcuVeg1sbiCNOC_OUuUZFaWnJ/exec';
+// ── PASTE YOUR LATEST /exec URL HERE ──
+var API = 'https://script.google.com/macros/s/AKfycbxwEwQvAE0Eql5pFfvvxdsur4Nhe3uIjkiv5IEgEKnQJxje8iKHaFKavcveIKW930lj/exec';
 
-var PW = '';
-var sess = ''; var rows = []; var filt = 'all'; var tc = 0;
+var PW = '', sess = '', rows = [], filt = 'all', tc = 0;
 var now = new Date(); now.setHours(0,0,0,0);
 
 function offset(d){ var x=new Date(now); x.setDate(x.getDate()+d); return x.toISOString().split('T')[0]; }
@@ -229,86 +229,41 @@ function dateLabel(s,done){
   return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
 }
 
-// All API calls use GET to avoid CORS issues
-// JSONP to bypass CORS
-function apiGet(params, callbackFn) {
+// ── JSONP — only method that works cross-origin with Apps Script ──
+function apiGet(params, callbackFn){
   var cbName = 'cb_' + Math.random().toString(36).substr(2,9);
   params.callback = cbName;
-  var url = API + '?';
   var parts = [];
   for(var k in params) parts.push(k+'='+encodeURIComponent(params[k]));
-  url += parts.join('&');
-
+  var url = API + '?' + parts.join('&');
+  var script = document.createElement('script');
   window[cbName] = function(data){
     delete window[cbName];
-    document.body.removeChild(script);
+    if(document.body.contains(script)) document.body.removeChild(script);
     callbackFn(data);
   };
-
-  var script = document.createElement('script');
-  script.src = url;
   script.onerror = function(){
     delete window[cbName];
-    document.body.removeChild(script);
+    if(document.body.contains(script)) document.body.removeChild(script);
     callbackFn({ error: 'Request failed' });
   };
+  script.src = url;
   document.body.appendChild(script);
 }
 
+// ── BOOT ──
 function boot(){
   addTask();
   apiGet({ action:'getConfig' }, function(config){
     if(config && config.password){
       PW = config.password;
       var s = localStorage.getItem('sz_pw');
-      if(s === PW && PW !== ''){ sess = s; }
+      if(s === PW){ sess = s; }
     }
   });
 }
 
-function submitTasks(){
-  var nm=document.getElementById('sender-name').value.trim();
-  if(!nm){alert('Please enter your name.');return;}
-  var cards=document.querySelectorAll('.task-card');
-  var tasks=[];
-  for(var i=0;i<cards.length;i++){
-    var v=cards[i].querySelector('.tn').value.trim(); if(!v) continue;
-    tasks.push({
-      name:v,
-      category:cards[i].querySelector('.tc').value,
-      priority:cards[i].querySelector('.tp').value,
-      deadline:cards[i].querySelector('.td').value
-    });
-  }
-  if(!tasks.length){alert('Fill in at least one task.');return;}
-  var btn=document.getElementById('send-btn');
-  btn.disabled=true; btn.textContent='Sending…';
-  var payload = { senderName: nm, tasks: tasks };
-  apiGet({ action:'submitTasks', payload: JSON.stringify(payload) }, function(res){
-    if(res && res.error){ alert('Error: '+res.error); btn.disabled=false; btn.textContent='Send Tasks →'; return; }
-    document.getElementById('form-body').style.display='none';
-    document.getElementById('success-state').classList.add('show');
-    btn.disabled=false; btn.textContent='Send Tasks →';
-  });
-}
-
-function loadRows(){
-  document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
-  apiGet({ action:'getTasks', password: sess }, function(res){
-    try{
-      if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
-      if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
-      if(!res.tasks||!res.tasks.length){document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>';document.getElementById('stats-grid').innerHTML='';return;}
-      rows=res.tasks; renderAll();
-    }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
-  });
-}
-
-function toggle(id,e){
-  e.stopPropagation();
-  apiGet({ action:'toggleDone', id:id, password:sess }, function(){ loadRows(); });
-}
-
+// ── NAV ──
 function showView(v){
   document.querySelectorAll('.view').forEach(function(e){e.classList.remove('active');});
   document.querySelectorAll('.nav-tab').forEach(function(e){e.classList.remove('active');});
@@ -343,6 +298,7 @@ function doLogout(){
   document.getElementById('tab-submit').classList.add('active');
 }
 
+// ── SUBMIT ──
 function addTask(){
   tc++;
   var n=tc;
@@ -370,29 +326,17 @@ function submitTasks(){
   var tasks=[];
   for(var i=0;i<cards.length;i++){
     var v=cards[i].querySelector('.tn').value.trim(); if(!v) continue;
-    tasks.push({
-      name:v,
-      category:cards[i].querySelector('.tc').value,
-      priority:cards[i].querySelector('.tp').value,
-      deadline:cards[i].querySelector('.td').value
-    });
+    tasks.push({name:v,category:cards[i].querySelector('.tc').value,priority:cards[i].querySelector('.tp').value,deadline:cards[i].querySelector('.td').value});
   }
   if(!tasks.length){alert('Fill in at least one task.');return;}
   var btn=document.getElementById('send-btn');
   btn.disabled=true; btn.textContent='Sending…';
-
-  var payload = { senderName: nm, tasks: tasks };
-  apiGet({ action:'submitTasks', payload: JSON.stringify(payload) })
-    .then(function(res){
-      if(res.error){ alert('Error: '+res.error); btn.disabled=false; btn.textContent='Send Tasks →'; return; }
-      document.getElementById('form-body').style.display='none';
-      document.getElementById('success-state').classList.add('show');
-      btn.disabled=false; btn.textContent='Send Tasks →';
-    })
-    .catch(function(e){
-      alert('Error: '+(e.message||'unknown'));
-      btn.disabled=false; btn.textContent='Send Tasks →';
-    });
+  apiGet({ action:'submitTasks', payload: JSON.stringify({ senderName:nm, tasks:tasks }) }, function(res){
+    if(res && res.error){ alert('Error: '+res.error); btn.disabled=false; btn.textContent='Send Tasks →'; return; }
+    document.getElementById('form-body').style.display='none';
+    document.getElementById('success-state').classList.add('show');
+    btn.disabled=false; btn.textContent='Send Tasks →';
+  });
 }
 
 function resetForm(){
@@ -403,20 +347,17 @@ function resetForm(){
   document.getElementById('success-state').classList.remove('show');
 }
 
+// ── ADMIN ──
 function loadRows(){
   document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
-  apiGet({ action:'getTasks', password: sess })
-    .then(function(res){
-      try{
-        if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
-        if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
-        if(!res.tasks||!res.tasks.length){document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>';document.getElementById('stats-grid').innerHTML='';return;}
-        rows=res.tasks; renderAll();
-      }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
-    })
-    .catch(function(){
-      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Failed to load. Try refreshing.</p></div>';
-    });
+  apiGet({ action:'getTasks', password:sess }, function(res){
+    try{
+      if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
+      if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
+      if(!res.tasks||!res.tasks.length){document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>';document.getElementById('stats-grid').innerHTML='';return;}
+      rows=res.tasks; renderAll();
+    }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
+  });
 }
 
 function renderAll(){ renderStats(); renderConflict(); renderRows(); }
@@ -460,27 +401,21 @@ function renderRows(){
   else if(filt==='p3')       list=list.filter(function(r){return !r.done&&r.priority==='p3';});
   else if(filt==='overdue')  list=list.filter(function(r){return !r.done&&new Date(r.deadline)<now;});
   else if(filt==='done')     list=list.filter(function(r){return r.done;});
-
   list.sort(function(a,b){
     var po={p1:0,p2:1,p3:2};
     if(po[a.priority]!==po[b.priority]) return po[a.priority]-po[b.priority];
     return new Date(a.deadline)-new Date(b.deadline);
   });
-
   var el=document.getElementById('task-stack');
   if(!list.length){
-    var msg=filt==='done'?'No completed tasks yet.':'No tasks here.';
-    el.innerHTML='<div class="empty-state"><div class="e-icon">'+(filt==='done'?'🎉':'📭')+'</div><p>'+msg+'</p></div>';
+    el.innerHTML='<div class="empty-state"><div class="e-icon">'+(filt==='done'?'🎉':'📭')+'</div><p>'+(filt==='done'?'No completed tasks yet.':'No tasks here.')+'</p></div>';
     return;
   }
-
   var h='';
   for(var i=0;i<list.length;i++){
     var r=list[i];
     var dl=dateLabel(r.deadline,r.done);
-    var isOv=!r.done&&dl.cls==='late';
-    var isTd=!r.done&&dl.cls==='now';
-    h+='<div class="t'+(isOv?' overdue':'')+(isTd?' duetoday':'')+(r.done?' done':'')+'">'+
+    h+='<div class="t'+(!r.done&&dl.cls==='late'?' overdue':'')+(!r.done&&dl.cls==='now'?' duetoday':'')+(r.done?' done':'')+'">'+
       '<div class="t-title">'+r.task+'</div>'+
       '<button class="check-btn'+(r.done?' done':'')+'" onclick="toggle(\''+r.id+'\',event)">✓</button>'+
       '<div class="t-meta">'+
@@ -496,8 +431,7 @@ function renderRows(){
 
 function toggle(id,e){
   e.stopPropagation();
-  apiGet({ action:'toggleDone', id:id, password:sess })
-    .then(function(){ loadRows(); });
+  apiGet({ action:'toggleDone', id:id, password:sess }, function(){ loadRows(); });
 }
 </script>
 </body>
