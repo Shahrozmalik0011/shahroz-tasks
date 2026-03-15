@@ -210,26 +210,27 @@ select.inp option { background: #10101e; }
 </div>
 
 <script>
-// ── PASTE YOUR LATEST /exec URL HERE ──
-var API = 'https://script.google.com/macros/s/AKfycbxwEwQvAE0Eql5pFfvvxdsur4Nhe3uIjkiv5IEgEKnQJxje8iKHaFKavcveIKW930lj/exec';
+// ── UPDATE THIS URL WHENEVER YOU REDEPLOY ──
+var API = 'https://script.google.com/macros/s/AKfycbz2QwHTJJX52Dr3dpXnYodH8ie9Zp9ORwsSPuNzRik3AfHG_ZCH5HGcPh0fdd44GhyV/exec';
 
 var PW = '', sess = '', rows = [], filt = 'all', tc = 0;
 var now = new Date(); now.setHours(0,0,0,0);
 
 function offset(d){ var x=new Date(now); x.setDate(x.getDate()+d); return x.toISOString().split('T')[0]; }
 
-function dateLabel(s,done){
-  if(!s) return {txt:'No date',cls:''};
-  var d=new Date(s); d.setHours(0,0,0,0);
-  var df=Math.round((d-now)/86400000);
-  if(done) return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
-  if(df<0) return {txt:Math.abs(df)+'d overdue',cls:'late'};
-  if(df===0) return {txt:'Due today',cls:'now'};
-  if(df===1) return {txt:'Tomorrow',cls:''};
-  return {txt:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:''};
+function dateLabel(s, done){
+  if(!s) return {txt:'No date', cls:''};
+  var d = new Date(s);
+  if(isNaN(d.getTime())) return {txt:'No date', cls:''};
+  d.setHours(0,0,0,0);
+  var df = Math.round((d - now) / 86400000);
+  if(done) return {txt: d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), cls:''};
+  if(df < 0) return {txt: Math.abs(df)+'d overdue', cls:'late'};
+  if(df === 0) return {txt: 'Due today', cls:'now'};
+  if(df === 1) return {txt: 'Tomorrow', cls:''};
+  return {txt: d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), cls:''};
 }
 
-// ── JSONP — only method that works cross-origin with Apps Script ──
 function apiGet(params, callbackFn){
   var cbName = 'cb_' + Math.random().toString(36).substr(2,9);
   params.callback = cbName;
@@ -251,7 +252,6 @@ function apiGet(params, callbackFn){
   document.body.appendChild(script);
 }
 
-// ── BOOT ──
 function boot(){
   addTask();
   apiGet({ action:'getConfig' }, function(config){
@@ -263,12 +263,11 @@ function boot(){
   });
 }
 
-// ── NAV ──
 function showView(v){
   document.querySelectorAll('.view').forEach(function(e){e.classList.remove('active');});
   document.querySelectorAll('.nav-tab').forEach(function(e){e.classList.remove('active');});
   document.getElementById('view-'+v).classList.add('active');
-  var t=document.getElementById('tab-'+(v==='admin'?'admin':'submit'));
+  var t = document.getElementById('tab-'+(v==='admin'?'admin':'submit'));
   if(t) t.classList.add('active');
 }
 
@@ -279,10 +278,10 @@ function goAdmin(){
 }
 
 function doLogin(){
-  var pw=document.getElementById('admin-pw').value;
+  var pw = document.getElementById('admin-pw').value;
   if(pw===PW && PW!==''){
-    sess=pw;
-    if(document.getElementById('remember').checked) localStorage.setItem('sz_pw',pw);
+    sess = pw;
+    if(document.getElementById('remember').checked) localStorage.setItem('sz_pw', pw);
     else localStorage.removeItem('sz_pw');
     document.getElementById('login-err').classList.remove('show');
     showView('admin'); loadRows();
@@ -292,19 +291,18 @@ function doLogin(){
 }
 
 function doLogout(){
-  sess=''; localStorage.removeItem('sz_pw');
-  document.getElementById('admin-pw').value='';
+  sess = ''; localStorage.removeItem('sz_pw');
+  document.getElementById('admin-pw').value = '';
   showView('submit');
   document.getElementById('tab-submit').classList.add('active');
 }
 
-// ── SUBMIT ──
 function addTask(){
   tc++;
-  var n=tc;
-  var el=document.createElement('div');
-  el.className='task-card'; el.id='tk'+n;
-  el.innerHTML=
+  var n = tc;
+  var el = document.createElement('div');
+  el.className = 'task-card'; el.id = 'tk'+n;
+  el.innerHTML =
     '<div class="tc-bar"><span class="tc-label">Task '+n+'</span>'+(n>1?'<button class="tc-remove" onclick="rmTask('+n+')">×</button>':'<span></span>')+'</div>'+
     '<div class="tc-body">'+
       '<div style="margin:0"><label class="field-label">Task / request</label><input class="inp tn" type="text" placeholder="What do you need Shahroz to do?"></div>'+
@@ -317,105 +315,105 @@ function addTask(){
   document.getElementById('task-list').appendChild(el);
 }
 
-function rmTask(n){ var e=document.getElementById('tk'+n); if(e)e.remove(); }
+function rmTask(n){ var e=document.getElementById('tk'+n); if(e) e.remove(); }
 
 function submitTasks(){
-  var nm=document.getElementById('sender-name').value.trim();
-  if(!nm){alert('Please enter your name.');return;}
-  var cards=document.querySelectorAll('.task-card');
-  var tasks=[];
-  for(var i=0;i<cards.length;i++){
-    var v=cards[i].querySelector('.tn').value.trim(); if(!v) continue;
-    tasks.push({name:v,category:cards[i].querySelector('.tc').value,priority:cards[i].querySelector('.tp').value,deadline:cards[i].querySelector('.td').value});
+  var nm = document.getElementById('sender-name').value.trim();
+  if(!nm){ alert('Please enter your name.'); return; }
+  var cards = document.querySelectorAll('.task-card');
+  var tasks = [];
+  for(var i=0; i<cards.length; i++){
+    var v = cards[i].querySelector('.tn').value.trim(); if(!v) continue;
+    tasks.push({name:v, category:cards[i].querySelector('.tc').value, priority:cards[i].querySelector('.tp').value, deadline:cards[i].querySelector('.td').value});
   }
-  if(!tasks.length){alert('Fill in at least one task.');return;}
-  var btn=document.getElementById('send-btn');
-  btn.disabled=true; btn.textContent='Sending…';
+  if(!tasks.length){ alert('Fill in at least one task.'); return; }
+  var btn = document.getElementById('send-btn');
+  btn.disabled = true; btn.textContent = 'Sending…';
   apiGet({ action:'submitTasks', payload: JSON.stringify({ senderName:nm, tasks:tasks }) }, function(res){
-    if(res && res.error){ alert('Error: '+res.error); btn.disabled=false; btn.textContent='Send Tasks →'; return; }
-    document.getElementById('form-body').style.display='none';
+    document.getElementById('form-body').style.display = 'none';
     document.getElementById('success-state').classList.add('show');
-    btn.disabled=false; btn.textContent='Send Tasks →';
+    btn.disabled = false; btn.textContent = 'Send Tasks →';
   });
 }
 
 function resetForm(){
-  document.getElementById('sender-name').value='';
-  document.getElementById('task-list').innerHTML='';
-  tc=0; addTask();
-  document.getElementById('form-body').style.display='';
+  document.getElementById('sender-name').value = '';
+  document.getElementById('task-list').innerHTML = '';
+  tc = 0; addTask();
+  document.getElementById('form-body').style.display = '';
   document.getElementById('success-state').classList.remove('show');
 }
 
-// ── ADMIN ──
 function loadRows(){
-  document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
+  document.getElementById('task-stack').innerHTML = '<div class="loader">Loading tasks…</div>';
   apiGet({ action:'getTasks', password:sess }, function(res){
     try{
-      if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
-      if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
-      if(!res.tasks||!res.tasks.length){document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>';document.getElementById('stats-grid').innerHTML='';return;}
-      rows=res.tasks; renderAll();
-    }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
+      if(!res){ document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>'; return; }
+      if(res.error){ document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>'; return; }
+      if(!res.tasks||!res.tasks.length){ document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>'; document.getElementById('stats-grid').innerHTML=''; return; }
+      rows = res.tasks; renderAll();
+    }catch(e){
+      document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';
+    }
   });
 }
 
 function renderAll(){ renderStats(); renderConflict(); renderRows(); }
 
 function renderStats(){
-  var open=rows.filter(function(r){return !r.done;});
-  var od=open.filter(function(r){return new Date(r.deadline)<now;}).length;
-  var dt=open.filter(function(r){var d=new Date(r.deadline);d.setHours(0,0,0,0);return d.getTime()===now.getTime();}).length;
-  var cr=open.filter(function(r){return r.priority==='p1';}).length;
-  var dn=rows.filter(function(r){return r.done;}).length;
-  document.getElementById('stats-grid').innerHTML=
+  var open = rows.filter(function(r){ return !r.done; });
+  var od = open.filter(function(r){ return new Date(r.deadline)<now; }).length;
+  var dt = open.filter(function(r){ var d=new Date(r.deadline); d.setHours(0,0,0,0); return d.getTime()===now.getTime(); }).length;
+  var cr = open.filter(function(r){ return r.priority==='p1'; }).length;
+  var dn = rows.filter(function(r){ return r.done; }).length;
+  document.getElementById('stats-grid').innerHTML =
     st('Open',open.length,'purple')+st('Overdue',od,'red')+st('Due Today',dt,'yellow')+st('Critical',cr,'red')+st('Done',dn,'green');
 }
 function st(k,v,c){ return '<div class="stat"><div class="stat-key">'+k+'</div><div class="stat-num '+c+'">'+v+'</div></div>'; }
 
 function renderConflict(){
-  var cnt={};
-  rows.filter(function(r){return !r.done;}).forEach(function(r){cnt[r.deadline]=(cnt[r.deadline]||0)+1;});
-  var hits=[];
+  var cnt = {};
+  rows.filter(function(r){ return !r.done; }).forEach(function(r){ cnt[r.deadline]=(cnt[r.deadline]||0)+1; });
+  var hits = [];
   for(var d in cnt) if(cnt[d]>=3) hits.push(new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}));
-  var el=document.getElementById('conflict-alert');
-  if(hits.length){el.style.display='flex';document.getElementById('conflict-msg').textContent=' Heavy load on: '+hits.join(', ')+'. Consider rescheduling.';}
-  else el.style.display='none';
+  var el = document.getElementById('conflict-alert');
+  if(hits.length){ el.style.display='flex'; document.getElementById('conflict-msg').textContent=' Heavy load on: '+hits.join(', ')+'. Consider rescheduling.'; }
+  else el.style.display = 'none';
 }
 
-function setFilter(f,btn){
-  filt=f;
-  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
+function setFilter(f, btn){
+  filt = f;
+  document.querySelectorAll('.fb').forEach(function(b){ b.classList.remove('on'); });
   btn.classList.add('on');
   renderRows();
 }
 
 function renderRows(){
-  var pl={p1:'Critical',p2:'High',p3:'Normal'};
-  var list=rows.slice();
-  if(filt==='all')           list=list.filter(function(r){return !r.done;});
-  else if(filt==='personal') list=list.filter(function(r){return !r.done&&r.category==='personal';});
-  else if(filt==='business') list=list.filter(function(r){return !r.done&&r.category==='business';});
-  else if(filt==='p1')       list=list.filter(function(r){return !r.done&&r.priority==='p1';});
-  else if(filt==='p2')       list=list.filter(function(r){return !r.done&&r.priority==='p2';});
-  else if(filt==='p3')       list=list.filter(function(r){return !r.done&&r.priority==='p3';});
-  else if(filt==='overdue')  list=list.filter(function(r){return !r.done&&new Date(r.deadline)<now;});
-  else if(filt==='done')     list=list.filter(function(r){return r.done;});
+  var pl = {p1:'Critical', p2:'High', p3:'Normal'};
+  var list = rows.slice();
+  if(filt==='all')           list=list.filter(function(r){ return !r.done; });
+  else if(filt==='personal') list=list.filter(function(r){ return !r.done&&r.category==='personal'; });
+  else if(filt==='business') list=list.filter(function(r){ return !r.done&&r.category==='business'; });
+  else if(filt==='p1')       list=list.filter(function(r){ return !r.done&&r.priority==='p1'; });
+  else if(filt==='p2')       list=list.filter(function(r){ return !r.done&&r.priority==='p2'; });
+  else if(filt==='p3')       list=list.filter(function(r){ return !r.done&&r.priority==='p3'; });
+  else if(filt==='overdue')  list=list.filter(function(r){ return !r.done&&new Date(r.deadline)<now; });
+  else if(filt==='done')     list=list.filter(function(r){ return r.done; });
   list.sort(function(a,b){
     var po={p1:0,p2:1,p3:2};
     if(po[a.priority]!==po[b.priority]) return po[a.priority]-po[b.priority];
     return new Date(a.deadline)-new Date(b.deadline);
   });
-  var el=document.getElementById('task-stack');
+  var el = document.getElementById('task-stack');
   if(!list.length){
     el.innerHTML='<div class="empty-state"><div class="e-icon">'+(filt==='done'?'🎉':'📭')+'</div><p>'+(filt==='done'?'No completed tasks yet.':'No tasks here.')+'</p></div>';
     return;
   }
-  var h='';
-  for(var i=0;i<list.length;i++){
-    var r=list[i];
-    var dl=dateLabel(r.deadline,r.done);
-    h+='<div class="t'+(!r.done&&dl.cls==='late'?' overdue':'')+(!r.done&&dl.cls==='now'?' duetoday':'')+(r.done?' done':'')+'">'+
+  var h = '';
+  for(var i=0; i<list.length; i++){
+    var r = list[i];
+    var dl = dateLabel(r.deadline, r.done);
+    h += '<div class="t'+(!r.done&&dl.cls==='late'?' overdue':'')+(!r.done&&dl.cls==='now'?' duetoday':'')+(r.done?' done':'')+'">'+
       '<div class="t-title">'+r.task+'</div>'+
       '<button class="check-btn'+(r.done?' done':'')+'" onclick="toggle(\''+r.id+'\',event)">✓</button>'+
       '<div class="t-meta">'+
@@ -426,10 +424,10 @@ function renderRows(){
       '</div>'+
     '</div>';
   }
-  el.innerHTML=h;
+  el.innerHTML = h;
 }
 
-function toggle(id,e){
+function toggle(id, e){
   e.stopPropagation();
   apiGet({ action:'toggleDone', id:id, password:sess }, function(){ loadRows(); });
 }
