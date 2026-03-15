@@ -230,23 +230,83 @@ function dateLabel(s,done){
 }
 
 // All API calls use GET to avoid CORS issues
-function apiGet(params){
+// JSONP to bypass CORS
+function apiGet(params, callbackFn) {
+  var cbName = 'cb_' + Math.random().toString(36).substr(2,9);
+  params.callback = cbName;
   var url = API + '?';
   var parts = [];
   for(var k in params) parts.push(k+'='+encodeURIComponent(params[k]));
   url += parts.join('&');
-  return fetch(url).then(function(r){ return r.json(); });
+
+  window[cbName] = function(data){
+    delete window[cbName];
+    document.body.removeChild(script);
+    callbackFn(data);
+  };
+
+  var script = document.createElement('script');
+  script.src = url;
+  script.onerror = function(){
+    delete window[cbName];
+    document.body.removeChild(script);
+    callbackFn({ error: 'Request failed' });
+  };
+  document.body.appendChild(script);
 }
 
 function boot(){
   addTask();
-  apiGet({ action:'getConfig' })
-    .then(function(config){
+  apiGet({ action:'getConfig' }, function(config){
+    if(config && config.password){
       PW = config.password;
       var s = localStorage.getItem('sz_pw');
       if(s === PW && PW !== ''){ sess = s; }
-    })
-    .catch(function(e){ console.log('Config error:', e); });
+    }
+  });
+}
+
+function submitTasks(){
+  var nm=document.getElementById('sender-name').value.trim();
+  if(!nm){alert('Please enter your name.');return;}
+  var cards=document.querySelectorAll('.task-card');
+  var tasks=[];
+  for(var i=0;i<cards.length;i++){
+    var v=cards[i].querySelector('.tn').value.trim(); if(!v) continue;
+    tasks.push({
+      name:v,
+      category:cards[i].querySelector('.tc').value,
+      priority:cards[i].querySelector('.tp').value,
+      deadline:cards[i].querySelector('.td').value
+    });
+  }
+  if(!tasks.length){alert('Fill in at least one task.');return;}
+  var btn=document.getElementById('send-btn');
+  btn.disabled=true; btn.textContent='Sending…';
+  var payload = { senderName: nm, tasks: tasks };
+  apiGet({ action:'submitTasks', payload: JSON.stringify(payload) }, function(res){
+    if(res && res.error){ alert('Error: '+res.error); btn.disabled=false; btn.textContent='Send Tasks →'; return; }
+    document.getElementById('form-body').style.display='none';
+    document.getElementById('success-state').classList.add('show');
+    btn.disabled=false; btn.textContent='Send Tasks →';
+  });
+}
+
+function loadRows(){
+  document.getElementById('task-stack').innerHTML='<div class="loader">Loading tasks…</div>';
+  apiGet({ action:'getTasks', password: sess }, function(res){
+    try{
+      if(!res){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Empty response.</p></div>';return;}
+      if(res.error){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>'+res.error+'</p></div>';return;}
+      if(!res.tasks||!res.tasks.length){document.getElementById('task-stack').innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No tasks yet.</p></div>';document.getElementById('stats-grid').innerHTML='';return;}
+      rows=res.tasks; renderAll();
+    }catch(e){document.getElementById('task-stack').innerHTML='<div class="empty-state"><p>Error: '+e.message+'</p></div>';}
+  });
+}
+
+function toggle(id,e){
+  e.stopPropagation();
+  apiGet({ action:'toggleDone', id:id, password:sess }, function(){ loadRows(); });
 }
 
 function showView(v){
