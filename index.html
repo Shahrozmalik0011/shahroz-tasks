@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/shahroz-tasks/manifest.json">
+<meta name="theme-color" content="#7c6dfa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shahroz Tasks">
+<link rel="apple-touch-icon" href="/shahroz-tasks/android-chrome-192x192.png">
 <title>Shahroz Tasks</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -127,7 +133,6 @@ select.inp option { background: #10101e; }
 .t-title { font-size: 13px; font-weight: 500; padding-right: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding-right: 96px; }
 .t-from { font-family: var(--mono); font-size: 10px; color: var(--text3); }
-
 .chip { display: inline-flex; align-items: center; padding: 1.5px 7px; border-radius: 4px; font-family: var(--mono); font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
 .chip.personal { background: rgba(124,109,250,0.12); color: var(--accent); }
 .chip.business { background: rgba(54,211,153,0.1); color: var(--green); }
@@ -138,7 +143,6 @@ select.inp option { background: #10101e; }
 .chip.date.late { background: var(--red-bg); color: var(--red); border-color: transparent; }
 .chip.date.now { background: var(--yellow-bg); color: var(--yellow); border-color: transparent; }
 .chip.date.soon { background: rgba(54,211,153,0.08); color: var(--green); border-color: transparent; }
-
 .btn-action {
   width: 26px; height: 26px; border-radius: 6px;
   background: var(--card2); border: 1px solid var(--border2);
@@ -150,7 +154,6 @@ select.inp option { background: #10101e; }
 .btn-done.ck { background: var(--green); border-color: var(--green); color: #080810; }
 .btn-del:hover { background: var(--red-bg); border-color: var(--red); color: var(--red); }
 .btn-edit:hover { background: rgba(124,109,250,0.15); border-color: var(--accent); color: var(--accent); }
-
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-state .e-icon { font-size: 30px; opacity: 0.2; margin-bottom: 10px; }
 .empty-state p { font-size: 12px; color: var(--text3); }
@@ -270,7 +273,7 @@ select.inp option { background: #10101e; }
     <div class="dl-task-preview" id="dl-task-name">—</div>
     <label class="field-label">New Deadline & Time</label>
     <input class="inp" type="datetime-local" id="dl-new-date">
-    <p class="reminder-note">🔔 Reminders: Critical = 2hrs before, High = 8hrs before, Normal = 1 day before. These are set when tasks are first submitted. Update manually in Google Calendar if you change the deadline here.</p>
+    <p class="reminder-note">🔔 Reminders: Critical = 2hrs before, High = 8hrs before, Normal = 1 day before. Update manually in Google Calendar if you change the deadline here.</p>
     <div class="dl-btn-row">
       <button class="dl-cancel-btn" onclick="closeDeadlineModal()">Cancel</button>
       <button class="dl-save-btn" id="dl-save-btn" onclick="saveDeadline()">Save Deadline →</button>
@@ -280,7 +283,7 @@ select.inp option { background: #10101e; }
 
 <script>
 // ── UPDATE THIS URL WHEN YOU REDEPLOY ──
-var API = 'https://script.google.com/macros/s/AKfycbzY2IioBM0520E5MBRZUt_WCgPLFk-xuI8WnvH5jF-R1TwUSZWEzs0KPgEPv0951Jh4/exec';
+var API = 'https://script.google.com/macros/s/AKfycby7jSNfkh01vuMvLZky0nfiDmzD57vn9HxhYwKlDbddW-iqzLwLCiBMlvMaFtcZJe9F/exec';
 
 var PW = '', sess = '', rows = [], filt = 'all', tc = 0;
 var editingTaskId = null;
@@ -292,35 +295,27 @@ function dateLabel(s, done){
   if(!s) return {txt:'No date', dl:'', cls:''};
   var d = new Date(s);
   if(isNaN(d.getTime())) return {txt:'No date', dl:'', cls:''};
-
   var hasTime = s.indexOf('T') > -1 && s.indexOf('T00:00') === -1 && s.indexOf('T09:00') === -1;
   var nowFull = new Date();
   var dMid = new Date(d); dMid.setHours(0,0,0,0);
   var df = Math.round((dMid - now) / 86400000);
-
   var dlStr = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
     + (hasTime ? ' at ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '');
-
   if(done) return {txt: dlStr, dl: dlStr, cls:''};
-
   var diffMs = d - nowFull;
   var diffMins = Math.round(diffMs / 60000);
   var diffHours = Math.floor(Math.abs(diffMins) / 60);
   var diffDays = Math.floor(Math.abs(diffMins) / 1440);
-
   if(diffMs < 0){
     if(Math.abs(diffMins) < 60) return {txt: Math.abs(diffMins)+'m overdue', dl: dlStr, cls:'late'};
     if(Math.abs(diffMins) < 1440) return {txt: diffHours+'h overdue', dl: dlStr, cls:'late'};
     return {txt: diffDays+'d overdue', dl: dlStr, cls:'late'};
   }
-
   if(diffMins < 60) return {txt: 'In '+diffMins+'m', dl: dlStr, cls:'now'};
   if(diffMins < 1440) return {txt: 'In '+diffHours+'h '+(diffMins%60)+'m', dl: dlStr, cls:'now'};
   if(df === 0) return {txt: 'Due today', dl: dlStr, cls:'now'};
-
   var remHours = Math.floor((diffMins % 1440) / 60);
   var remMins = diffMins % 60;
-
   if(df === 1){
     var t1 = hasTime ? 'Tomorrow, '+remHours+'h '+remMins+'m' : 'Tomorrow';
     return {txt: t1, dl: dlStr, cls:'soon'};
@@ -354,20 +349,29 @@ function apiGet(params, callbackFn){
   document.body.appendChild(script);
 }
 
+// ── BOOT — fixed auto-login ──
 function boot(){
   addTask();
-  apiGet({ action:'getConfig' }, function(config){
-    if(config && config.password){
-      PW = config.password;
-      var s = localStorage.getItem('sz_pw');
-      if(s === PW){ sess = s; }
-    }
-  });
   document.getElementById('dl-modal').addEventListener('click', function(e){
     if(e.target === this) closeDeadlineModal();
   });
+  apiGet({ action:'getConfig' }, function(config){
+    if(config && config.password){
+      PW = config.password;
+      var saved = localStorage.getItem('sz_pw');
+      if(saved === PW){
+        sess = saved;
+        // Auto go to admin
+        showView('admin');
+        document.getElementById('tab-admin').classList.add('active');
+        document.getElementById('tab-submit').classList.remove('active');
+        loadRows();
+      }
+    }
+  });
 }
 
+// ── NAV ──
 function showView(v){
   document.querySelectorAll('.view').forEach(function(e){e.classList.remove('active');});
   document.querySelectorAll('.nav-tab').forEach(function(e){e.classList.remove('active');});
@@ -378,16 +382,34 @@ function showView(v){
 
 function goAdmin(){
   document.getElementById('tab-admin').classList.add('active');
-  if(sess===PW && PW!==''){ showView('admin'); loadRows(); }
+  document.getElementById('tab-submit').classList.remove('active');
+  if(PW === ''){
+    // Config not loaded yet — wait for it
+    var attempts = 0;
+    var wait = setInterval(function(){
+      attempts++;
+      if(PW !== ''){
+        clearInterval(wait);
+        if(sess === PW && PW !== ''){ showView('admin'); loadRows(); }
+        else showView('login');
+      }
+      if(attempts > 20){ clearInterval(wait); showView('login'); }
+    }, 100);
+    return;
+  }
+  if(sess === PW && PW !== ''){ showView('admin'); loadRows(); }
   else showView('login');
 }
 
 function doLogin(){
   var pw = document.getElementById('admin-pw').value;
-  if(pw===PW && PW!==''){
+  if(pw === PW && PW !== ''){
     sess = pw;
-    if(document.getElementById('remember').checked) localStorage.setItem('sz_pw', pw);
-    else localStorage.removeItem('sz_pw');
+    if(document.getElementById('remember').checked){
+      localStorage.setItem('sz_pw', pw);
+    } else {
+      localStorage.removeItem('sz_pw');
+    }
     document.getElementById('login-err').classList.remove('show');
     showView('admin'); loadRows();
   } else {
@@ -400,8 +422,10 @@ function doLogout(){
   document.getElementById('admin-pw').value = '';
   showView('submit');
   document.getElementById('tab-submit').classList.add('active');
+  document.getElementById('tab-admin').classList.remove('active');
 }
 
+// ── SUBMIT ──
 function addTask(){
   tc++;
   var n = tc;
@@ -449,6 +473,7 @@ function resetForm(){
   document.getElementById('success-state').classList.remove('show');
 }
 
+// ── ADMIN ──
 function loadRows(){
   document.getElementById('task-stack').innerHTML = '<div class="loader">Loading tasks…</div>';
   apiGet({ action:'getTasks', password:sess }, function(res){
@@ -530,9 +555,8 @@ function renderRows(){
     var r = list[i];
     var dl = dateLabel(r.deadline, r.done || r.deleted);
     var isOv = !r.done && !r.deleted && dl.cls==='late';
-    var isTd = !r.done && !r.deleted && (dl.cls==='now');
+    var isTd = !r.done && !r.deleted && dl.cls==='now';
     var safeTask = r.task.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-
     h += '<div class="t'+(isOv?' overdue':'')+(isTd?' duetoday':'')+(r.done?' done':'')+(r.deleted?' deleted':'')+'">'+
       '<div class="t-title">'+r.task+'</div>'+
       '<div class="t-meta">'+
