@@ -1,0 +1,21 @@
+{
+  "name": "Shahroz Tasks",
+  "short_name": "Tasks",
+  "description": "Task management for Shahroz Malik",
+  "start_url": "/shahroz-tasks/",
+  "display": "standalone",
+  "background_color": "#080810",
+  "theme_color": "#7c6dfa",
+  "icons": [
+    {
+      "src": "/shahroz-tasks/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/shahroz-tasks/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
