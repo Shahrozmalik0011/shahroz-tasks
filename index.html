@@ -295,7 +295,7 @@ function dateLabel(s, done){
   if(!s) return {txt:'No date', dl:'', cls:''};
   var d = new Date(s);
   if(isNaN(d.getTime())) return {txt:'No date', dl:'', cls:''};
-  var hasTime = s.indexOf('T') > -1 && s.indexOf('T00:00') === -1 && s.indexOf('T09:00') === -1;
+  var hasTime = s.indexOf('T') > -1 && s.indexOf('T00:00') === -1;
   var nowFull = new Date();
   var dMid = new Date(d); dMid.setHours(0,0,0,0);
   var df = Math.round((dMid - now) / 86400000);
