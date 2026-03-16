@@ -174,6 +174,13 @@ select.inp option { background: #10101e; }
 .trello-empty { font-size: 11.5px; color: var(--text3); padding: 20px 0; text-align: center; }
 .trello-loader { font-family: var(--mono); font-size: 10px; color: var(--text3); padding: 14px 0; text-align: center; }
 
+  .tr-name { font-size: 12.5px; font-weight: 500; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
+.tr-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.tr-btn { width: 26px; height: 26px; border-radius: 6px; background: var(--card2); border: 1px solid var(--border2); cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--text3); }
+.tr-btn:hover.tr-done { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.tr-btn:hover.tr-del  { background: var(--red-bg);   border-color: var(--red);   color: var(--red);   }
+.tr-btn:hover.tr-edit { background: rgba(124,109,250,0.15); border-color: var(--accent); color: var(--accent); }
+  
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
   .nav { padding: 0 16px; }
@@ -295,7 +302,7 @@ select.inp option { background: #10101e; }
 
 <script>
 // ── UPDATE THIS URL WHEN YOU REDEPLOY ──
-var API = 'https://script.google.com/macros/s/AKfycbyquzbOded3eo7ohDjVQwKBzNygER1eVFp9R_77rUdJJLVO9PGtbDH6n9zjSpLe1b12/exec';
+var API = 'https://script.google.com/macros/s/AKfycbyVTTKRnf48NPYlVSYhomqyTPWmTbRudZHq2e3YxNPFZErx6BHvpme0MqOCkK7TsmIn/exec';
 
 // Trello list IDs for board detection
 var TR_PERSONAL_LIST = '66db68581ba1b6c2d6fa5e9b';
@@ -664,16 +671,15 @@ function loadTrelloAssigned(){
 function renderTrelloCards(cards){
   var stack = document.getElementById('trello-stack');
   var badge = document.getElementById('trello-badge');
-  // Exclude Done lists
   var open = cards.filter(function(c){
-    return c.idList !== TR_PERSONAL_DONE && c.idList !== TR_BUSINESS_DONE;
+    return c.idList !== TR_PERSONAL_DONE && c.idList !== TR_BUSINESS_DONE
+      && c.name.indexOf('📋') !== 0;
   });
   badge.textContent = open.length;
   if(!open.length){
     stack.innerHTML = '<div class="trello-empty">✨ No open cards assigned to you.</div>';
     return;
   }
-  // Sort by due date, nulls last
   open.sort(function(a,b){
     if(!a.due && !b.due) return 0;
     if(!a.due) return 1;
@@ -687,18 +693,76 @@ function renderTrelloCards(cards){
     var board = trBoard(c.idList);
     var rowCls = dl.cls==='late' ? ' tr-overdue' : (dl.cls==='now'||dl.cls==='soon') ? ' tr-soon' : '';
     var name = c.name.replace(/^📋\s*/,'');
-    h += '<div class="tr-row'+rowCls+'">'+
+    var safeId = c.id;
+    h += '<div class="tr-row'+rowCls+'" id="trr-'+safeId+'">'+
       '<span style="font-size:13px;opacity:0.5;flex-shrink:0">📌</span>'+
       '<span class="tr-name">'+name+'</span>'+
       '<div class="tr-chips">'+
         (board ? '<span class="tr-chip '+board+'">'+board+'</span>' : '')+
         (dl.txt ? '<span class="tr-chip due '+dl.cls+'">'+dl.txt+'</span>' : '')+
       '</div>'+
+      '<div class="tr-actions">'+
+        '<button class="tr-btn tr-edit" onclick="openTrelloDeadlineModal(\''+safeId+'\',\''+name.replace(/'/g,'').replace(/\\/g,'')+'\',\''+( c.due ? c.due.substring(0,16) : '')+'\',event)" title="Edit deadline">✎</button>'+
+        '<button class="tr-btn tr-done" onclick="completeTrelloCard(\''+safeId+'\',\''+board+'\',event)" title="Mark done">✓</button>'+
+        '<button class="tr-btn tr-del"  onclick="deleteTrelloCard2(\''+safeId+'\',event)" title="Delete">✕</button>'+
+      '</div>'+
       '<a class="tr-open" href="'+c.url+'" target="_blank" rel="noopener">Open ↗</a>'+
     '</div>';
   }
   stack.innerHTML = h;
 }
+
+// ── TRELLO CARD ACTIONS ──
+function completeTrelloCard(id, category, e){
+  e.stopPropagation();
+  if(!confirm('Mark this Trello card as done?')) return;
+  apiGet({ action:'trelloComplete', id:id, category:category, password:sess }, function(res){
+    if(res && res.error){ alert('Error: '+res.error); return; }
+    loadTrelloAssigned();
+  });
+}
+
+function deleteTrelloCard2(id, e){
+  e.stopPropagation();
+  if(!confirm('Delete this Trello card? This cannot be undone.')) return;
+  apiGet({ action:'trelloDelete', id:id, password:sess }, function(res){
+    if(res && res.error){ alert('Error: '+res.error); return; }
+    loadTrelloAssigned();
+  });
+}
+
+var editingTrelloId = null;
+
+function openTrelloDeadlineModal(id, name, currentDue, e){
+  e.stopPropagation();
+  editingTrelloId = id;
+  document.getElementById('dl-task-name').textContent = '📌 ' + name;
+  var dlVal = currentDue
+    ? (currentDue.indexOf('T') > -1 ? currentDue.substring(0,16) : currentDue+'T09:00')
+    : offset(7)+'T09:00';
+  document.getElementById('dl-new-date').value = dlVal;
+  document.getElementById('dl-modal').classList.add('show');
+  // Override save button to save to Trello instead
+  document.getElementById('dl-save-btn').onclick = saveTrelloDeadline;
+}
+
+function saveTrelloDeadline(){
+  var newDate = document.getElementById('dl-new-date').value;
+  if(!newDate){ alert('Please pick a date.'); return; }
+  if(!editingTrelloId) return;
+  var btn = document.getElementById('dl-save-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  apiGet({ action:'trelloUpdateDeadline', id:editingTrelloId, deadline:newDate, password:sess }, function(res){
+    btn.textContent = 'Save Deadline →'; btn.disabled = false;
+    // Restore original save handler
+    document.getElementById('dl-save-btn').onclick = saveDeadline;
+    editingTrelloId = null;
+    if(res && res.error){ alert('Error: '+res.error); return; }
+    closeDeadlineModal();
+    loadTrelloAssigned();
+  });
+}
+  
 </script>
 </body>
 </html>
