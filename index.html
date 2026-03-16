@@ -147,11 +147,39 @@ select.inp option { background: #10101e; }
 .dl-cancel-btn { padding:10px 16px; background:transparent; border:1px solid var(--border2); border-radius:8px; color:var(--text2); font-family:var(--sans); font-size:13px; cursor:pointer; transition:all 0.2s; }
 .dl-cancel-btn:hover { border-color:var(--red); color:var(--red); }
 .reminder-note { font-size:10px; color:var(--text3); margin-top:10px; line-height:1.6; padding:8px 10px; background:var(--card2); border-radius:6px; }
+
+/* ── TRELLO ASSIGNED TO ME ── */
+.trello-panel { margin-top: 36px; border-top: 1px solid var(--border); padding-top: 24px; }
+.trello-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.trello-panel-title { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
+.trello-badge { background: rgba(124,109,250,0.15); color: var(--accent); font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+.trello-refresh { padding: 4px 10px; background: transparent; border: 1px solid var(--border2); border-radius: 6px; color: var(--text3); font-size: 10px; font-family: var(--sans); cursor: pointer; transition: all 0.15s; }
+.trello-refresh:hover { border-color: var(--accent); color: var(--accent); }
+.trello-stack { display: flex; flex-direction: column; gap: 5px; }
+.tr-row { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; transition: border-color 0.15s, background 0.15s; }
+.tr-row:hover { border-color: var(--border2); background: var(--card2); }
+.tr-row.tr-overdue { border-left: 2px solid var(--red); }
+.tr-row.tr-soon { border-left: 2px solid var(--yellow); }
+.tr-name { font-size: 12.5px; font-weight: 500; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-chips { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.tr-chip { font-family: var(--mono); font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; padding: 1.5px 7px; border-radius: 4px; white-space: nowrap; }
+.tr-chip.personal { background: rgba(124,109,250,0.12); color: var(--accent); }
+.tr-chip.business { background: rgba(54,211,153,0.1); color: var(--green); }
+.tr-chip.due { background: var(--card2); color: var(--text2); border: 1px solid var(--border); }
+.tr-chip.due.late { background: var(--red-bg); color: var(--red); border-color: transparent; }
+.tr-chip.due.now { background: var(--yellow-bg); color: var(--yellow); border-color: transparent; }
+.tr-chip.due.soon { background: rgba(54,211,153,0.08); color: var(--green); border-color: transparent; }
+.tr-open { font-size: 10px; color: var(--text3); background: var(--card2); border: 1px solid var(--border2); border-radius: 5px; padding: 3px 8px; text-decoration: none; transition: all 0.15s; flex-shrink: 0; }
+.tr-open:hover { border-color: var(--accent); color: var(--accent); }
+.trello-empty { font-size: 11.5px; color: var(--text3); padding: 20px 0; text-align: center; }
+.trello-loader { font-family: var(--mono); font-size: 10px; color: var(--text3); padding: 14px 0; text-align: center; }
+
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
   .nav { padding: 0 16px; }
   .admin-page, .submit-page { padding-left: 16px; padding-right: 16px; }
   .two-col { grid-template-columns: 1fr; }
+  .tr-chips { display: none; }
 }
 @media (max-width: 380px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
@@ -211,7 +239,7 @@ select.inp option { background: #10101e; }
     <div class="dash-header">
       <div>
         <div class="dash-title">Task Dashboard</div>
-        <div class="dash-sub">SHAHROZ MALIK</div>
+        <div class="dash-sub">SHAHROZ MALIK — LYZOO GROUP LTD</div>
       </div>
       <button class="logout-btn" onclick="doLogout()">Log out</button>
     </div>
@@ -232,6 +260,21 @@ select.inp option { background: #10101e; }
       <button class="fb del-tab" onclick="setFilter('deleted',this)">🗑 Deleted</button>
     </div>
     <div class="task-stack" id="task-stack"><div class="loader">Loading…</div></div>
+
+    <!-- TRELLO ASSIGNED TO ME -->
+    <div class="trello-panel" id="trello-panel" style="display:none">
+      <div class="trello-panel-header">
+        <div class="trello-panel-title">
+          📌 &nbsp;Assigned to me on Trello
+          <span class="trello-badge" id="trello-badge">0</span>
+        </div>
+        <button class="trello-refresh" onclick="loadTrelloAssigned()">↻ Refresh</button>
+      </div>
+      <div class="trello-stack" id="trello-stack">
+        <div class="trello-loader">Loading Trello cards…</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -252,7 +295,13 @@ select.inp option { background: #10101e; }
 
 <script>
 // ── UPDATE THIS URL WHEN YOU REDEPLOY ──
-var API = 'https://script.google.com/macros/s/AKfycbzc77vGeva4H4jxJuNeX-0nJRY8K5zey0JbRFLKFYSrgvmVvRUknfcxifkbYjzE2DeQ/exec';
+var API = 'https://script.google.com/macros/s/AKfycbyquzbOded3eo7ohDjVQwKBzNygER1eVFp9R_77rUdJJLVO9PGtbDH6n9zjSpLe1b12/exec';
+
+// Trello list IDs for board detection
+var TR_PERSONAL_LIST = '66db68581ba1b6c2d6fa5e9b';
+var TR_PERSONAL_DONE = '66db68581ba1b6c2d6fa5e9d';
+var TR_BUSINESS_LIST = '66d0a7e3e3d9b236920f5d02';
+var TR_BUSINESS_DONE = '66d0ab09f5d2dc946a3ba724';
 
 var PW = '', sess = '', rows = [], filt = 'all', tc = 0;
 var editingTaskId = null;
@@ -285,14 +334,8 @@ function dateLabel(s, done){
   if(df === 0) return {txt: 'Due today', dl: dlStr, cls:'now'};
   var remHours = Math.floor((diffMins % 1440) / 60);
   var remMins = diffMins % 60;
-  if(df === 1){
-    var t1 = hasTime ? 'Tomorrow, '+remHours+'h '+remMins+'m' : 'Tomorrow';
-    return {txt: t1, dl: dlStr, cls:'soon'};
-  }
-  if(df <= 7){
-    var t2 = hasTime ? 'In '+df+'d '+remHours+'h '+remMins+'m' : 'In '+df+' days';
-    return {txt: t2, dl: dlStr, cls:'soon'};
-  }
+  if(df === 1){ var t1 = hasTime ? 'Tomorrow, '+remHours+'h '+remMins+'m' : 'Tomorrow'; return {txt: t1, dl: dlStr, cls:'soon'}; }
+  if(df <= 7){ var t2 = hasTime ? 'In '+df+'d '+remHours+'h '+remMins+'m' : 'In '+df+' days'; return {txt: t2, dl: dlStr, cls:'soon'}; }
   var t3 = hasTime ? 'In '+df+'d '+remHours+'h' : 'In '+df+' days';
   return {txt: t3, dl: dlStr, cls:''};
 }
@@ -333,6 +376,7 @@ function boot(){
         document.getElementById('tab-admin').classList.add('active');
         document.getElementById('tab-submit').classList.remove('active');
         loadRows();
+        loadTrelloAssigned();
       }
     }
   });
@@ -355,14 +399,14 @@ function goAdmin(){
       attempts++;
       if(PW !== ''){
         clearInterval(wait);
-        if(sess === PW && PW !== ''){ showView('admin'); loadRows(); }
+        if(sess === PW && PW !== ''){ showView('admin'); loadRows(); loadTrelloAssigned(); }
         else showView('login');
       }
       if(attempts > 20){ clearInterval(wait); showView('login'); }
     }, 100);
     return;
   }
-  if(sess === PW && PW !== ''){ showView('admin'); loadRows(); }
+  if(sess === PW && PW !== ''){ showView('admin'); loadRows(); loadTrelloAssigned(); }
   else showView('login');
 }
 
@@ -376,7 +420,7 @@ function doLogin(){
       localStorage.removeItem('sz_pw');
     }
     document.getElementById('login-err').classList.remove('show');
-    showView('admin'); loadRows();
+    showView('admin'); loadRows(); loadTrelloAssigned();
   } else {
     document.getElementById('login-err').classList.add('show');
   }
@@ -578,6 +622,82 @@ function saveDeadline(){
     closeDeadlineModal();
     loadRows();
   });
+}
+
+// ── TRELLO ASSIGNED TO ME ──
+function trDueLabel(due){
+  if(!due) return {txt:'', cls:''};
+  var d = new Date(due);
+  if(isNaN(d)) return {txt:'', cls:''};
+  var nowFull = new Date();
+  var diffMs = d - nowFull;
+  var dMid = new Date(d); dMid.setHours(0,0,0,0);
+  var df = Math.round((dMid - now) / 86400000);
+  var dlStr = d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  if(diffMs < 0) return {txt: Math.abs(Math.ceil(diffMs/86400000))+'d overdue', cls:'late'};
+  if(df === 0) return {txt: 'Due today', cls:'now'};
+  if(df === 1) return {txt: 'Tomorrow', cls:'soon'};
+  if(df <= 7) return {txt: 'In '+df+' days', cls:'soon'};
+  return {txt: dlStr, cls:''};
+}
+
+function trBoard(idList){
+  if(idList===TR_PERSONAL_LIST||idList===TR_PERSONAL_DONE) return 'personal';
+  if(idList===TR_BUSINESS_LIST||idList===TR_BUSINESS_DONE) return 'business';
+  return '';
+}
+
+function loadTrelloAssigned(){
+  var panel = document.getElementById('trello-panel');
+  var stack = document.getElementById('trello-stack');
+  panel.style.display = 'block';
+  stack.innerHTML = '<div class="trello-loader">Loading Trello cards…</div>';
+  apiGet({ action:'getTrelloAssigned', password:sess }, function(res){
+    if(!res || res.error){
+      stack.innerHTML = '<div class="trello-empty">Could not load Trello cards'+(res&&res.error?' — '+res.error:'')+'</div>';
+      return;
+    }
+    renderTrelloCards(res.cards || []);
+  });
+}
+
+function renderTrelloCards(cards){
+  var stack = document.getElementById('trello-stack');
+  var badge = document.getElementById('trello-badge');
+  // Exclude Done lists
+  var open = cards.filter(function(c){
+    return c.idList !== TR_PERSONAL_DONE && c.idList !== TR_BUSINESS_DONE;
+  });
+  badge.textContent = open.length;
+  if(!open.length){
+    stack.innerHTML = '<div class="trello-empty">✨ No open cards assigned to you.</div>';
+    return;
+  }
+  // Sort by due date, nulls last
+  open.sort(function(a,b){
+    if(!a.due && !b.due) return 0;
+    if(!a.due) return 1;
+    if(!b.due) return -1;
+    return new Date(a.due) - new Date(b.due);
+  });
+  var h = '';
+  for(var i=0; i<open.length; i++){
+    var c = open[i];
+    var dl = trDueLabel(c.due);
+    var board = trBoard(c.idList);
+    var rowCls = dl.cls==='late' ? ' tr-overdue' : (dl.cls==='now'||dl.cls==='soon') ? ' tr-soon' : '';
+    var name = c.name.replace(/^📋\s*/,'');
+    h += '<div class="tr-row'+rowCls+'">'+
+      '<span style="font-size:13px;opacity:0.5;flex-shrink:0">📌</span>'+
+      '<span class="tr-name">'+name+'</span>'+
+      '<div class="tr-chips">'+
+        (board ? '<span class="tr-chip '+board+'">'+board+'</span>' : '')+
+        (dl.txt ? '<span class="tr-chip due '+dl.cls+'">'+dl.txt+'</span>' : '')+
+      '</div>'+
+      '<a class="tr-open" href="'+c.url+'" target="_blank" rel="noopener">Open ↗</a>'+
+    '</div>';
+  }
+  stack.innerHTML = h;
 }
 </script>
 </body>
